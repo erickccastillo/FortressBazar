@@ -6,8 +6,7 @@ import SearchBar from '../components/SearchBar';
 const AdminDashboard: React.FC = () => {
   const [query, setQuery] = useState('');
   
-  // Reutilizamos tu hook del catálogo. Recuerda que aunque diga "Products", 
-  // por dentro tu backend ya está apuntando a la tabla 'clothes'.
+  // Reutilizamos tu hook del catálogo.
   const { products, loading, error } = useFetchProducts({
     page: 1,
     q: query,
@@ -17,6 +16,35 @@ const AdminDashboard: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
     window.location.href = "/login";
+  };
+
+  // Función para manejar la eliminación
+  const handleDelete = async (id: string, name: string) => {
+    const confirmDelete = window.confirm(`¿Estás seguro de que deseas eliminar la prenda "${name}"? Esta acción no se puede deshacer.`);
+    
+    if (confirmDelete) {
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+        
+        // Llamada a la API para eliminar
+        const response = await fetch(`${apiUrl}/api/clothes/${id}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          throw new Error('Error al eliminar la prenda');
+        }
+
+        alert('Prenda eliminada con éxito');
+        
+        // Recargar la página para actualizar la lista. 
+        window.location.reload(); 
+        
+      } catch (error) {
+        console.error("Error eliminando:", error);
+        alert('Hubo un problema al intentar eliminar la prenda.');
+      }
+    }
   };
 
   return (
@@ -86,7 +114,7 @@ const AdminDashboard: React.FC = () => {
                   <th style={{ padding: '1.2rem 1rem' }}>Talla</th>
                   <th style={{ padding: '1.2rem 1rem' }}>Color</th>
                   <th style={{ padding: '1.2rem 1rem' }}>Precio</th>
-                  <th style={{ padding: '1.2rem 1rem', textAlign: 'center' }}>Acción</th>
+                  <th style={{ padding: '1.2rem 1rem', textAlign: 'center' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -113,24 +141,52 @@ const AdminDashboard: React.FC = () => {
                       <td style={{ padding: '1rem' }}>{product.color || '-'}</td>
                       <td style={{ padding: '1rem', color: '#fff', fontWeight: 'bold' }}>${product.price}</td>
                       <td style={{ padding: '1rem', textAlign: 'center', verticalAlign: 'middle' }}>
-                        <Link
-                          to={`/admin/edit/${product.id}`}
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: '#fff',
-                            color: '#000',
-                            padding: '0.5rem 1.2rem',
-                            borderRadius: '6px',
-                            textDecoration: 'none',
-                            fontWeight: 'bold',
-                            fontSize: '0.85rem',
-                            textTransform: 'uppercase'
-                          }}
-                        >
-                          Editar 
-                        </Link>
+                        
+                        {/* Contenedor para alinear los botones de Editar y Eliminar */}
+                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                          
+                          {/* Botón Editar */}
+                          <Link
+                            to={`/admin/edit/${product.id}`}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              backgroundColor: '#fff',
+                              color: '#000',
+                              padding: '0.5rem 1rem',
+                              borderRadius: '6px',
+                              textDecoration: 'none',
+                              fontWeight: 'bold',
+                              fontSize: '0.85rem',
+                              textTransform: 'uppercase'
+                            }}
+                          >
+                            Editar 
+                          </Link>
+
+                          {/* Botón Eliminar */}
+                          <button
+                            onClick={() => handleDelete(product.id, product.name)}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              backgroundColor: '#ff4444', // Rojo llamativo
+                              color: '#fff',
+                              padding: '0.5rem 1rem',
+                              borderRadius: '6px',
+                              border: 'none',
+                              cursor: 'pointer',
+                              fontWeight: 'bold',
+                              fontSize: '0.85rem',
+                              textTransform: 'uppercase'
+                            }}
+                          >
+                            Borrar
+                          </button>
+                        </div>
+
                       </td>
                     </tr>
                   ))

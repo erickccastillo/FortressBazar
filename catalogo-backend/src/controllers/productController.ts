@@ -51,7 +51,30 @@ export const getProducts = async (req: Request, res: Response) => {
     });
   }
 };
+// Función para eliminar prendas
+export const deleteProduct = async (req: Request, res: Response) => {
+  const { id } = req.params;
 
+  try {
+    const { error } = await supabase
+      .from('clothes')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('DELETE CLOTHES ERROR:', error);
+      throw error;
+    }
+
+    return res.status(200).json({ message: 'Prenda eliminada correctamente' });
+
+  } catch (error: any) {
+    console.error('DELETE CLOTHES ERROR:', error);
+    return res.status(500).json({
+      error: error?.message || 'Error al eliminar la prenda'
+    });
+  }
+};
 // Función para crear prendas (Panel de Administrador)
 export const createProduct = async (req: Request, res: Response) => {
   try {
