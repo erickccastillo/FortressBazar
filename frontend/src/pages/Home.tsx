@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import 'home.css';
-// Imágenes desde la carpeta local 'images' y colores solicitados
+import './Home.css';
+
 const IMAGES = [
-  { src: '../images/ropa-1.jpg', bg: '#1E293B', panel: '#334155' }, // Azul marino oscuro
-  { src: '../images/ropa-2.jpg', bg: '#3F2E3E', panel: '#5c435a' }, // Borgoña / Vino
-  { src: '../images/ropa-3.jpg', bg: '#2A3B32', panel: '#3f574a' }, // Verde bosque oscuro
-  { src: '../images/ropa-4.jpg', bg: '#27272A', panel: '#3f3f46' }, // Gris carbón
+  { src: '../images/ropa-1.jpg', bg: '#1E293B', panel: '#334155' },
+  { src: '../images/ropa-2.jpg', bg: '#3F2E3E', panel: '#5c435a' },
+  { src: '../images/ropa-3.jpg', bg: '#2A3B32', panel: '#3f574a' },
+  { src: '../images/ropa-4.jpg', bg: '#27272A', panel: '#3f3f46' },
 ];
 
-// SVG codificado para el efecto de grano (Grain overlay)
 const grainSvg = `data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E`;
 
 export default function BazarHome() {
@@ -17,20 +16,17 @@ export default function BazarHome() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Precargar imágenes y detectar tamaño de pantalla al montar
   useEffect(() => {
-    // Carga de imágenes
     IMAGES.forEach((image) => {
       const img = new Image();
       img.src = image.src;
     });
 
-    // Detectar si es móvil
     const handleResize = () => {
       setIsMobile(window.innerWidth < 640);
     };
     
-    handleResize(); // Chequeo inicial
+    handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -41,16 +37,14 @@ export default function BazarHome() {
     setIsAnimating(true);
     setActiveIndex((prev) => {
       if (direction === 'next') return (prev + 1) % 4;
-      return (prev + 3) % 4; // Equivalente a (prev - 1) pero seguro para negativos
+      return (prev + 3) % 4;
     });
 
-    // Liberar el candado de animación después de 650ms
     setTimeout(() => {
       setIsAnimating(false);
     }, 650);
   }, [isAnimating]);
 
-  // Función para determinar los estilos en base al rol que juega la imagen actual
   const getItemStyle = (index: number) => {
     let role = '';
     if (index === activeIndex) role = 'center';
@@ -116,14 +110,13 @@ export default function BazarHome() {
 
   return (
     <>
-      {/* Importar fuentes requeridas si no están en el HTML padre */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap');
       `}</style>
 
-      {/* Contenedor Exterior Principal */}
+      {/* AQUÍ ESTÁ EL CAMBIO CLAVE: Cambiamos w-full por w-screen m-0 p-0 */}
       <div 
-        className="relative w-full overflow-hidden"
+        className="relative w-screen m-0 p-0 overflow-hidden left-0 right-0"
         style={{ 
           backgroundColor: IMAGES[activeIndex].bg,
           transition: 'background-color 650ms cubic-bezier(0.4,0,0.2,1)',
@@ -132,7 +125,6 @@ export default function BazarHome() {
       >
         <div className="relative w-full h-screen overflow-hidden">
           
-          {/* 1. Grain overlay */}
           <div 
             className="absolute inset-0 pointer-events-none z-50 opacity-40"
             style={{ 
@@ -142,7 +134,6 @@ export default function BazarHome() {
             }}
           />
 
-          {/* 2. Giant ghost text "FORTRESS" */}
           <div 
             className="absolute inset-x-0 flex items-center justify-center pointer-events-none select-none z-10 text-white uppercase whitespace-nowrap"
             style={{ 
@@ -157,12 +148,10 @@ export default function BazarHome() {
             FORTRESS
           </div>
 
-          {/* 3. Top-left brand label */}
-          <div className="absolute top-6 left-4 sm:left-8 z-[60] text-xs font-semibold uppercase text-white opacity-90 tracking-[0.18em]">
+          <div className="absolute top-24 left-4 sm:left-8 z-[60] text-xs font-semibold uppercase text-white opacity-90 tracking-[0.18em]">
             FORTRESS BAZAR
           </div>
 
-          {/* 4. Carousel */}
           <div className="absolute inset-0 z-30">
             {IMAGES.map((img, index) => (
               <div 
@@ -180,7 +169,6 @@ export default function BazarHome() {
             ))}
           </div>
 
-          {/* 5. Bottom-left text + nav buttons */}
           <div className="absolute bottom-6 left-4 sm:bottom-20 sm:left-24 z-[60] max-w-[320px]">
             <p className="font-bold uppercase tracking-widest mb-2 sm:mb-3 text-base sm:text-[22px] text-white opacity-95" style={{ letterSpacing: '0.02em' }}>
               ROPA AMERICANA
@@ -207,7 +195,6 @@ export default function BazarHome() {
             </div>
           </div>
 
-          {/* 6. Bottom-right link */}
           <div className="absolute bottom-6 right-4 sm:bottom-20 sm:right-10 z-[60]">
             <a 
               href="#nosotros" 
@@ -230,11 +217,10 @@ export default function BazarHome() {
         </div>
       </div>
 
-      {/* Sección "Sobre Nosotros" */}
-      <section id="nosotros" className="w-full bg-[#111111] text-neutral-300 py-24 px-6 sm:px-12 lg:px-24 font-['Inter']">
+      {/* AQUÍ ESTÁ EL OTRO CAMBIO CLAVE: Cambiamos w-full por w-screen m-0 p-0 */}
+      <section id="nosotros" className="w-screen m-0 bg-[#111111] text-neutral-300 py-24 px-6 sm:px-12 lg:px-24 font-['Inter'] overflow-hidden">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           
-          {/* Columna Izquierda: Historia */}
           <div>
             <h2 className="text-5xl sm:text-6xl lg:text-7xl font-bold uppercase text-white mb-6" style={{ fontFamily: "'Anton', sans-serif", letterSpacing: '-0.02em' }}>
               NUESTRA ESENCIA
@@ -254,9 +240,7 @@ export default function BazarHome() {
             </p>
           </div>
 
-          {/* Columna Derecha: Logística y Entregas */}
           <div className="bg-[#1a1a1a] p-8 sm:p-12 rounded-[2rem] border border-white/5 shadow-2xl relative overflow-hidden">
-            {/* Elemento de diseño de fondo */}
             <div className="absolute top-0 right-0 p-8 opacity-5">
               <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 2L2 22h20L12 2zm0 4.5l6.5 13h-13L12 6.5z"/>
