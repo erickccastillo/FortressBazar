@@ -5,9 +5,9 @@ import { useFetchProducts } from '../hooks/useFetchProducts';
 import type { Product } from '../types/Product';
 
 const formatTechnicalDescription = (text?: string) => {
-  if (!text) return <p style={{ color: '#aaa' }}>Sin descripción.</p>;
+  if (!text) return <p className="text-gray-400">Sin descripción.</p>;
   return (
-    <p style={{ color: '#ccc', fontSize: '0.95rem', margin: 0, lineHeight: 1.6 }}>
+    <p className="text-gray-300 text-[0.95rem] m-0 leading-relaxed">
       {text}
     </p>
   );
@@ -18,7 +18,6 @@ const Catalog: React.FC = () => {
   const [category, setCategory] = useState<string>('TODOS');
   const [page, setPage] = useState(1);
 
-  // Hook que ya está apuntando a "clothes" en el backend
   const { products, loading, error, totalPages, totalProducts } = useFetchProducts({
     page,
     q: query,
@@ -26,9 +25,8 @@ const Catalog: React.FC = () => {
   });
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [activeImageIndex, setActiveImageIndex] = useState(0); // Para controlar qué foto se ve en el modal
+  const [activeImageIndex, setActiveImageIndex] = useState(0); 
   
-  // Categorías de ropa
   const categories = [
     'TODOS', 'CAMISA', 'CHAMARRA', 'PANTALON', 'PLAYERA', 'ACCESORIO'
   ];
@@ -39,26 +37,27 @@ const Catalog: React.FC = () => {
 
   const handleProductClick = (producto: Product) => {
     setSelectedProduct(producto);
-    setActiveImageIndex(0); // Reinicia la imagen al abrir otra prenda
+    setActiveImageIndex(0); 
   };
 
   return (
-    // CAMBIO AQUI: w-screen y m-0 para asegurar el ancho total
-    <section className="w-screen m-0 overflow-x-hidden" style={styles.container}>
+    <section className="w-screen min-h-screen m-0 overflow-x-hidden bg-[#111111] text-[#e5e5e5] font-['Inter'] px-4 py-24 md:px-8 md:pt-32 md:pb-16">
       
       {/* Cabecera del Catálogo */}
-      <div style={styles.header}>
-        <div style={styles.accentLine}></div>
-        <h2 style={styles.title}>NUESTRO CATÁLOGO</h2>
-        <p style={styles.subtitle}>
+      <div className="text-center mb-10 md:mb-12 flex flex-col items-center">
+        <div className="w-[60px] h-1 bg-white mb-6"></div>
+        <h2 className="font-['Anton'] text-4xl md:text-5xl lg:text-6xl text-white mb-4 tracking-wide uppercase">
+          NUESTRO CATÁLOGO
+        </h2>
+        <p className="text-base md:text-lg text-gray-400 max-w-2xl leading-relaxed mx-auto px-4">
           Explora la colección completa. 
           Ropa americana 100% original, importada y seleccionada cuidadosamente.
         </p>
       </div>
 
       {/* Panel de Controles */}
-      <div style={styles.controlsCard}>
-        <div style={styles.searchWrapper}>
+      <div className="bg-[#1a1a1a] rounded-2xl p-4 md:p-8 border border-[#333] mb-8 md:mb-12 max-w-7xl mx-auto shadow-lg">
+        <div className="max-w-2xl mx-auto mb-6 md:mb-8">
           <SearchBar
             value={query}
             onChange={(v) => {
@@ -68,7 +67,7 @@ const Catalog: React.FC = () => {
           />
         </div>
 
-        <div style={styles.categoriesWrapper}>
+        <div className="flex flex-wrap gap-2 md:gap-3 justify-center">
           {categories.map((cat) => {
             const isActive = category === cat;
             return (
@@ -78,12 +77,11 @@ const Catalog: React.FC = () => {
                   setCategory(cat);
                   setPage(1);
                 }}
-                style={{
-                  ...styles.categoryButton,
-                  backgroundColor: isActive ? '#fff' : 'transparent',
-                  color: isActive ? '#000' : '#888',
-                  borderColor: isActive ? '#fff' : '#444',
-                }}
+                className={`px-4 py-2 md:px-5 md:py-2.5 rounded-full border text-[0.8rem] md:text-sm font-bold transition-all duration-200 cursor-pointer ${
+                  isActive 
+                    ? 'bg-white text-black border-white shadow-md' 
+                    : 'bg-transparent text-gray-400 border-gray-700 hover:border-gray-500 hover:text-gray-200'
+                }`}
               >
                 {cat}
               </button>
@@ -93,23 +91,22 @@ const Catalog: React.FC = () => {
       </div>
 
       {loading && (
-        <div style={styles.statusMessage}>
-          <div style={styles.spinner}></div>
+        <div className="flex flex-col items-center justify-center py-16 text-gray-400 text-lg">
+          <div className="w-10 h-10 border-4 border-[#333] border-t-white rounded-full animate-spin mb-4"></div>
           <p>Cargando nuestro catálogo...</p>
         </div>
       )}
       
       {error && (
-        <div style={styles.errorMessage}>
-          <span style={{ fontWeight: 'bold' }}>¡Ups! Ha ocurrido un error:</span> {error}
+        <div className="bg-[#3b0000] text-[#ffb3b3] p-4 md:p-6 rounded-lg border border-[#ff4444] text-center my-8 mx-auto max-w-3xl shadow-lg">
+          <span className="font-bold block mb-1">¡Ups! Ha ocurrido un error:</span> {error}
         </div>
       )}
 
       {/* Lista de Productos */}
-      {/* CAMBIO AQUI: Contenedor con max-width para centrar el grid y evitar que se pegue a la izquierda */}
       {!loading && !error && (
-        <div style={styles.productSection}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <div className="min-h-[400px]">
+          <div className="max-w-7xl mx-auto">
             <ProductList 
               products={products as Product[]} 
               onProductClick={handleProductClick} 
@@ -120,30 +117,28 @@ const Catalog: React.FC = () => {
 
       {/* Controles de Paginación */}
       {!loading && !error && totalProducts > 0 && (
-        <div style={styles.paginationContainer}>
-          <div style={styles.paginationInfo}>
-            Mostrando <span style={styles.highlightText}>{products?.length ?? 0}</span> de <span style={styles.highlightText}>{totalProducts ?? 0}</span> prendas
+        <div className="flex flex-col sm:flex-row justify-between items-center mt-12 md:mt-16 pt-8 border-t border-[#333] gap-6 max-w-7xl mx-auto">
+          <div className="text-sm md:text-base text-gray-400 text-center sm:text-left">
+            Mostrando <span className="font-bold text-white">{products?.length ?? 0}</span> de <span className="font-bold text-white">{totalProducts ?? 0}</span> prendas
           </div>
 
           {totalPages > 1 && (
-            <div style={styles.paginationControls}>
+            <div className="flex items-center gap-2 md:gap-4 w-full sm:w-auto justify-between sm:justify-end">
               <button
                 onClick={() => {
                   setPage((p) => Math.max(1, p - 1));
                   scrollToTop();
                 }}
                 disabled={page === 1}
-                style={{
-                  ...styles.pageButton,
-                  opacity: page === 1 ? 0.3 : 1,
-                  cursor: page === 1 ? 'not-allowed' : 'pointer',
-                }}
+                className={`px-4 py-2 md:px-5 md:py-2.5 rounded-lg border border-[#444] bg-[#222] text-white font-semibold text-sm md:text-base transition-all ${
+                  page === 1 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-[#333] cursor-pointer'
+                }`}
               >
                 ← Anterior
               </button>
 
-              <div style={styles.pageIndicator}>
-                Página <span style={{ fontWeight: 700, color: '#fff' }}>{page}</span> de {totalPages}
+              <div className="text-sm md:text-base text-gray-400 min-w-[80px] md:min-w-[100px] text-center">
+                <span className="font-bold text-white">{page}</span> / {totalPages}
               </div>
 
               <button
@@ -152,11 +147,9 @@ const Catalog: React.FC = () => {
                   scrollToTop();
                 }}
                 disabled={page === totalPages}
-                style={{
-                  ...styles.pageButton,
-                  opacity: page === totalPages ? 0.3 : 1,
-                  cursor: page === totalPages ? 'not-allowed' : 'pointer',
-                }}
+                className={`px-4 py-2 md:px-5 md:py-2.5 rounded-lg border border-[#444] bg-[#222] text-white font-semibold text-sm md:text-base transition-all ${
+                  page === totalPages ? 'opacity-30 cursor-not-allowed' : 'hover:bg-[#333] cursor-pointer'
+                }`}
               >
                 Siguiente →
               </button>
@@ -165,45 +158,51 @@ const Catalog: React.FC = () => {
         </div>
       )}
 
-      {/* =========================================
-          MODAL (VENTANA FLOTANTE DE DETALLES)
-          ========================================= */}
+      {/* MODAL (VENTANA FLOTANTE DE DETALLES) */}
       {selectedProduct && (
-        <div style={styles.modalOverlay} onClick={() => setSelectedProduct(null)}>
-          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <button style={styles.closeButton} onClick={() => setSelectedProduct(null)}>✕</button>
+        <div 
+          className="fixed inset-0 w-screen h-screen bg-black/90 flex items-center justify-center z-[9999] p-4 box-border backdrop-blur-sm overflow-hidden"
+          onClick={() => setSelectedProduct(null)}
+        >
+          <div 
+            className="bg-[#111] rounded-2xl w-full max-w-[1050px] max-h-[95vh] overflow-y-auto relative border border-[#333] shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              className="absolute top-3 right-3 md:top-4 md:right-4 bg-[#222] border border-[#444] rounded-full w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-white text-lg hover:bg-[#333] transition-colors z-10 shadow-lg"
+              onClick={() => setSelectedProduct(null)}
+              aria-label="Cerrar detalles"
+            >
+              ✕
+            </button>
             
-            <div style={styles.modalGrid}>
+            <div className="flex flex-col md:flex-row gap-6 md:gap-10 p-5 pt-12 md:p-10">
               
               {/* Columna Izquierda: Galería de Imágenes */}
-              <div style={styles.modalGalleryContainer}>
-                {/* Imagen Principal */}
-                <div style={styles.modalImageWrapper}>
+              <div className="w-full md:w-[45%] flex flex-col gap-4">
+                <div className="bg-[#1a1a1a] rounded-xl overflow-hidden flex items-center justify-center min-h-[300px] md:min-h-[400px] border border-[#333]">
                   {selectedProduct.image_urls && selectedProduct.image_urls.length > 0 ? (
                     <img 
                       src={selectedProduct.image_urls[activeImageIndex]} 
                       alt={selectedProduct.name} 
-                      style={styles.modalImage} 
+                      className="w-full h-auto max-h-[400px] md:max-h-[500px] object-contain"
                     />
                   ) : (
-                    <div style={{ color: '#666', fontWeight: 600 }}>Sin Imagen</div>
+                    <div className="text-gray-500 font-semibold">Sin Imagen</div>
                   )}
                 </div>
 
-                {/* Miniaturas de la Galería (Solo se muestran si hay más de 1 imagen) */}
                 {selectedProduct.image_urls && selectedProduct.image_urls.length > 1 && (
-                  <div style={styles.thumbnailContainer}>
+                  <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                     {selectedProduct.image_urls.map((url, idx) => (
                       <div 
                         key={idx} 
                         onClick={() => setActiveImageIndex(idx)}
-                        style={{
-                          ...styles.thumbnail,
-                          borderColor: activeImageIndex === idx ? '#fff' : 'transparent',
-                          opacity: activeImageIndex === idx ? 1 : 0.5,
-                        }}
+                        className={`w-14 h-14 md:w-16 md:h-16 rounded-lg border-2 overflow-hidden cursor-pointer shrink-0 transition-all ${
+                          activeImageIndex === idx ? 'border-white opacity-100' : 'border-transparent opacity-50 hover:opacity-80'
+                        }`}
                       >
-                        <img src={url} alt={`Miniatura ${idx}`} style={styles.thumbnailImg} />
+                        <img src={url} alt={`Miniatura ${idx}`} className="w-full h-full object-cover" />
                       </div>
                     ))}
                   </div>
@@ -211,33 +210,47 @@ const Catalog: React.FC = () => {
               </div>
 
               {/* Columna Derecha: Detalles */}
-              <div style={styles.modalDetails}>
-                <span style={styles.modalCategory}>{selectedProduct.category}</span>
-                <h2 style={styles.modalTitle}>{selectedProduct.name}</h2>
+              <div className="w-full md:w-[55%] flex flex-col justify-center">
+                <span className="text-[0.75rem] md:text-[0.85rem] font-bold text-gray-400 tracking-[0.15em] mb-2 uppercase">
+                  {selectedProduct.category}
+                </span>
+                
+                <h2 className="font-['Anton'] text-3xl md:text-4xl lg:text-5xl text-white mb-2 leading-tight uppercase tracking-wide">
+                  {selectedProduct.name}
+                </h2>
                 
                 {selectedProduct.price > 0 && (
-                  <p style={styles.modalPrice}>${selectedProduct.price?.toFixed(2)} MXN</p>
+                  <p className="text-2xl md:text-3xl font-bold text-white mb-6">
+                    ${selectedProduct.price?.toFixed(2)} MXN
+                  </p>
                 )}
                 
-                {formatTechnicalDescription(selectedProduct.description)}
+                <div className="mb-6">
+                  {formatTechnicalDescription(selectedProduct.description)}
+                </div>
 
-                {/* Especificaciones Extras (Talla, Color) */}
-                <div style={styles.specsContainer}>
+                <div className="flex flex-col gap-3 mt-auto mb-8 bg-[#1a1a1a] p-5 rounded-xl border border-[#333]">
                   {selectedProduct.size && (
-                    <div style={styles.specItem}>
-                      <span style={styles.specLabel}>Talla</span>
-                      <span style={styles.specValue}>{selectedProduct.size}</span>
+                    <div className="flex justify-between items-center border-b border-[#333] pb-3 last:border-0 last:pb-0">
+                      <span className="font-semibold text-gray-400 text-[0.85rem] md:text-sm uppercase">Talla</span>
+                      <span className="text-white text-sm md:text-base font-bold bg-[#222] px-3 py-1 rounded border border-[#444]">{selectedProduct.size}</span>
                     </div>
                   )}
                   {selectedProduct.color && (
-                    <div style={styles.specItem}>
-                      <span style={styles.specLabel}>Color</span>
-                      <span style={styles.specValue}>{selectedProduct.color}</span>
+                    <div className="flex justify-between items-center border-b border-[#333] pb-3 last:border-0 last:pb-0">
+                      <span className="font-semibold text-gray-400 text-[0.85rem] md:text-sm uppercase">Color</span>
+                      <span className="text-white text-sm md:text-base font-bold capitalize">{selectedProduct.color}</span>
                     </div>
                   )}
                 </div>
 
-                <a href="#contacto" style={styles.modalButton}>
+                {/* NO OLVIDES CAMBIAR EL NÚMERO DE WHATSAPP AQUÍ */}
+                <a 
+                  href={`https://wa.me/523300000000?text=Hola,%20me%20interesa%20comprar%20la%20prenda:%20${encodeURIComponent(selectedProduct.name)}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="bg-white text-black py-4 px-6 rounded-xl text-center font-extrabold transition-transform duration-200 hover:scale-[1.02] uppercase tracking-wider text-sm md:text-base shadow-lg"
+                >
                   CONTACTAR PARA COMPRAR
                 </a>
               </div>
@@ -247,312 +260,6 @@ const Catalog: React.FC = () => {
       )}
     </section>
   );
-};
-
-// Objeto de estilos adaptado al tema oscuro de Fortress Bazar
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    padding: '8rem 2rem 4rem 2rem', // Padding top extra para compensar el header fixed
-    // CAMBIO AQUI: Se eliminó el maxWidth de aquí para que el fondo cubra todo
-    fontFamily: '"Inter", sans-serif',
-    backgroundColor: '#111111',
-    color: '#e5e5e5',
-    minHeight: '100vh',
-  },
-  header: {
-    textAlign: 'center',
-    marginBottom: '3rem',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  accentLine: {
-    width: '60px',
-    height: '4px',
-    backgroundColor: '#ffffff',
-    marginBottom: '1.5rem',
-  },
-  title: {
-    fontFamily: '"Anton", sans-serif',
-    fontSize: 'clamp(2.5rem, 5vw, 4rem)',
-    color: '#ffffff',
-    margin: '0 0 1rem 0',
-    letterSpacing: '0.02em',
-    textTransform: 'uppercase',
-  },
-  subtitle: {
-    fontSize: '1.125rem',
-    color: '#999',
-    maxWidth: '600px',
-    lineHeight: 1.6,
-    margin: 0,
-  },
-  controlsCard: {
-    backgroundColor: '#1a1a1a',
-    borderRadius: '16px',
-    padding: '2rem',
-    border: '1px solid #333',
-    marginBottom: '3rem',
-    maxWidth: '1200px', // Añadimos maxWidth aquí
-    margin: '0 auto 3rem auto', // y margin auto para centrarlo
-  },
-  searchWrapper: {
-    maxWidth: '600px',
-    margin: '0 auto 2rem auto',
-  },
-  categoriesWrapper: {
-    display: 'flex',
-    gap: '0.75rem',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-  },
-  categoryButton: {
-    padding: '0.5rem 1.25rem',
-    borderRadius: '9999px',
-    border: '1px solid',
-    fontSize: '0.875rem',
-    fontWeight: 600,
-    transition: 'all 0.2s ease',
-    cursor: 'pointer',
-  },
-  productSection: {
-    minHeight: '400px',
-    padding: '0 1rem', // Pequeño padding lateral para que las cards no toquen el borde en móviles
-  },
-  statusMessage: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '4rem 0',
-    color: '#888',
-    fontSize: '1.125rem',
-  },
-  spinner: {
-    width: '40px',
-    height: '40px',
-    border: '3px solid #333',
-    borderTopColor: '#fff',
-    borderRadius: '50%',
-    animation: 'spin 1s linear infinite',
-    marginBottom: '1rem',
-  },
-  errorMessage: {
-    backgroundColor: '#3b0000',
-    color: '#ffb3b3',
-    padding: '1rem 1.5rem',
-    borderRadius: '8px',
-    border: '1px solid #ff4444',
-    textAlign: 'center',
-    margin: '2rem auto', // Centramos el mensaje de error
-    maxWidth: '800px',
-  },
-  paginationContainer: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: '4rem',
-    paddingTop: '2rem',
-    borderTop: '1px solid #333',
-    flexWrap: 'wrap',
-    gap: '1.5rem',
-    maxWidth: '1200px', // Centramos la paginación también
-    margin: '4rem auto 0 auto',
-  },
-  paginationInfo: {
-    fontSize: '0.95rem',
-    color: '#888',
-  },
-  highlightText: {
-    fontWeight: 700,
-    color: '#fff',
-  },
-  paginationControls: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1rem',
-  },
-  pageButton: {
-    padding: '0.5rem 1.25rem',
-    borderRadius: '8px',
-    border: '1px solid #444',
-    backgroundColor: '#222',
-    color: '#fff',
-    fontWeight: 600,
-    fontSize: '0.9rem',
-    transition: 'all 0.2s',
-  },
-  pageIndicator: {
-    fontSize: '0.95rem',
-    color: '#888',
-    minWidth: '100px',
-    textAlign: 'center',
-  },
-
-  /* --- MODAL FLOTANTE OSCURO --- */
-  modalOverlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    width: '100vw',
-    height: '100vh',
-    backgroundColor: 'rgba(0, 0, 0, 0.9)', 
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 9999,
-    padding: '1rem',
-    boxSizing: 'border-box',
-    backdropFilter: 'blur(8px)',
-  },
-  modalContent: {
-    backgroundColor: '#111',
-    borderRadius: '16px',
-    maxWidth: '1050px', 
-    width: '100%',
-    maxHeight: '90vh',
-    overflowY: 'auto',
-    position: 'relative',
-    border: '1px solid #333',
-    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-  },
-  closeButton: {
-    position: 'absolute',
-    top: '1rem',
-    right: '1rem',
-    background: '#222',
-    border: '1px solid #444',
-    borderRadius: '50%',
-    width: '36px',
-    height: '36px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '1.2rem',
-    color: '#fff',
-    cursor: 'pointer',
-    zIndex: 10,
-    transition: 'background-color 0.2s',
-  },
-  modalGrid: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: '2.5rem',
-    padding: '2.5rem',
-  },
-  modalGalleryContainer: {
-    flex: '1 1 350px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1rem',
-  },
-  modalImageWrapper: {
-    backgroundColor: '#1a1a1a',
-    borderRadius: '12px',
-    overflow: 'hidden',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '300px',
-    border: '1px solid #333',
-  },
-  modalImage: {
-    width: '100%',
-    height: 'auto',
-    maxHeight: '500px',
-    objectFit: 'contain',
-  },
-  thumbnailContainer: {
-    display: 'flex',
-    gap: '0.5rem',
-    overflowX: 'auto',
-    paddingBottom: '0.5rem',
-  },
-  thumbnail: {
-    width: '60px',
-    height: '60px',
-    borderRadius: '8px',
-    border: '2px solid',
-    overflow: 'hidden',
-    cursor: 'pointer',
-    flexShrink: 0,
-    transition: 'all 0.2s',
-  },
-  thumbnailImg: {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
-  },
-  modalDetails: {
-    flex: '2 1 450px', 
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-  },
-  modalCategory: {
-    fontSize: '0.85rem',
-    fontWeight: 700,
-    color: '#888',
-    letterSpacing: '2px',
-    marginBottom: '0.5rem',
-    textTransform: 'uppercase',
-  },
-  modalTitle: {
-    fontFamily: '"Anton", sans-serif',
-    fontSize: '2.5rem',
-    color: '#fff',
-    marginBottom: '0.5rem',
-    lineHeight: 1.1,
-    textTransform: 'uppercase',
-    letterSpacing: '1px',
-  },
-  modalPrice: {
-    fontSize: '1.75rem',
-    fontWeight: 700,
-    color: '#fff',
-    marginBottom: '1.5rem',
-  },
-  specsContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.75rem',
-    marginTop: '1.5rem',
-    marginBottom: '2.5rem',
-    backgroundColor: '#1a1a1a',
-    padding: '1.5rem',
-    borderRadius: '8px',
-    border: '1px solid #333',
-  },
-  specItem: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    borderBottom: '1px solid #333',
-    paddingBottom: '0.5rem',
-  },
-  specLabel: {
-    fontWeight: 600,
-    color: '#aaa',
-    fontSize: '0.9rem',
-    textTransform: 'uppercase',
-  },
-  specValue: {
-    color: '#fff',
-    fontSize: '0.9rem',
-    fontWeight: 'bold',
-  },
-  modalButton: {
-    backgroundColor: '#fff', 
-    color: '#000',
-    padding: '1rem',
-    borderRadius: '8px',
-    textAlign: 'center',
-    fontWeight: 800,
-    textDecoration: 'none',
-    transition: 'transform 0.2s',
-    marginTop: 'auto',
-    textTransform: 'uppercase',
-    letterSpacing: '1px',
-  },
 };
 
 export default Catalog;
