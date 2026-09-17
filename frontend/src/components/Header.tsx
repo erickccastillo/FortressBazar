@@ -1,80 +1,98 @@
-import React, { useState, useEffect } from 'react';
-import { Link, NavLink } from 'react-router-dom';
-// Asegúrate de tener tu logo en esta ruta o actualízala
-import logo from '../images/logo.png'; 
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Menu, X } from 'lucide-react'; 
 
 const Header: React.FC = () => {
-  const [scrolled, setScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Efecto para cambiar el fondo al hacer scroll (opcional pero recomendado para el diseño oscuro)
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const closeMenu = () => setIsMenuOpen(false);
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[1000] font-['Inter']">
-      <header
-        className={`flex justify-between items-center px-6 sm:px-12 py-4 transition-all duration-300 ${
-          scrolled ? 'bg-[#111111]/90 backdrop-blur-md shadow-lg shadow-black/20 border-b border-white/10' : 'bg-transparent'
-        }`}
-      >
-        {/* Logo y Nombre de Marca */}
-        <Link to="/" className="flex items-center gap-3 no-underline group">
-          <img
-            src={logo}
-            alt="Logo Fortress Bazar"
-            className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg object-cover border border-white/20 transition-transform group-hover:scale-105"
+    <header 
+      className="fixed top-0 left-0 w-full z-[100] transition-colors duration-300" 
+      style={{ 
+        backgroundColor: isMenuOpen ? '#111111' : 'rgba(17, 17, 17, 0.8)', 
+        backdropFilter: 'blur(10px)' 
+      }}
+    >
+      <div className="w-full px-6 md:px-12 py-5 flex justify-between items-center">
+        
+        <Link to="/" className="flex items-center gap-4" onClick={closeMenu}>
+          <img 
+            src="/images/logo.png" 
+            alt="Fortress Logo" 
+            className="w-[42px] h-[42px] object-contain"
           />
           <div className="flex flex-col">
-            <span className="font-['Anton'] text-2xl sm:text-3xl text-white tracking-wide uppercase leading-none">
-              Fortress
+            <span className="text-white font-['Anton'] text-2xl tracking-[0.02em] uppercase leading-none">
+              FORTRESS
             </span>
-            <span className="text-[10px] sm:text-xs text-neutral-400 font-semibold tracking-[0.2em] uppercase mt-1">
+            <span className="text-white/60 text-[0.65rem] font-['Inter'] tracking-[0.2em] uppercase font-bold mt-1">
               Bazar Americano
             </span>
           </div>
         </Link>
 
-        {/* Navegación Desktop */}
-        <nav className="hidden sm:flex items-center gap-8">
-          <NavLink
-            to="/"
-            className={({ isActive }) =>
-              `text-sm font-semibold uppercase tracking-wider transition-colors ${
-                isActive ? 'text-white' : 'text-neutral-400 hover:text-white'
-              }`
-            }
+        <nav className="hidden md:flex items-center gap-8">
+          <Link 
+            to="/" 
+            className="text-white text-[0.85rem] font-bold tracking-wider hover:text-white/70 transition-colors"
           >
-            Inicio
-          </NavLink>
-
-          <NavLink
-            to="/catalog"
-            className={({ isActive }) =>
-              `text-sm font-semibold uppercase tracking-wider transition-colors ${
-                isActive ? 'text-white' : 'text-neutral-400 hover:text-white'
-              }`
-            }
-          >
-            Catálogo
-          </NavLink>
-
-          <Link
-            to="/ubicacion" // Adaptado a la temática del negocio (Puntos de entrega/Ubicación)
-            className="bg-white text-black px-6 py-2.5 rounded-full font-bold text-sm uppercase tracking-wider hover:bg-neutral-200 transition-colors transform hover:scale-105 active:scale-95"
-          >
-            Visítanos
+            INICIO
           </Link>
+          <Link 
+            to="/catalog" 
+            className="text-white text-[0.85rem] font-bold tracking-wider hover:text-white/70 transition-colors"
+          >
+            CATÁLOGO
+          </Link>
+          <a 
+            href="#contacto" 
+            className="bg-white text-black px-6 py-2.5 rounded-full text-[0.85rem] font-extrabold tracking-wider hover:bg-gray-200 transition-colors ml-2"
+          >
+            VISÍTANOS
+          </a>
         </nav>
-      </header>
 
-      {/* Desvanecido inferior (Gradiente oscuro) */}
-      <div className="h-4 bg-gradient-to-b from-[#111111]/40 to-transparent pointer-events-none" />
-    </div>
+        <button 
+          className="md:hidden text-white p-1 focus:outline-none" 
+          onClick={toggleMenu}
+        >
+          {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
+      </div>
+
+      <div 
+        className={`md:hidden bg-[#111111] overflow-hidden transition-all duration-300 ${
+          isMenuOpen ? 'max-h-64 border-t border-white/10' : 'max-h-0'
+        }`}
+      >
+        <div className="px-6 py-6 flex flex-col gap-6">
+          <Link 
+            to="/" 
+            onClick={closeMenu} 
+            className="text-white text-sm font-bold tracking-wider"
+          >
+            INICIO
+          </Link>
+          <Link 
+            to="/catalog" 
+            onClick={closeMenu} 
+            className="text-white text-sm font-bold tracking-wider"
+          >
+            CATÁLOGO
+          </Link>
+          <a 
+            href="#contacto" 
+            onClick={closeMenu} 
+            className="bg-white text-black text-center px-6 py-3 mt-2 rounded-full text-sm font-extrabold tracking-wider"
+          >
+            VISÍTANOS
+          </a>
+        </div>
+      </div>
+    </header>
   );
 };
 
