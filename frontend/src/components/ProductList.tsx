@@ -4,14 +4,15 @@ import ProductCard from './ProductCard';
 
 interface ProductListProps {
   products: Product[];
-  onProductClick?: (product: Product) => void; // Recibimos el clic desde Catalog.tsx
+  onProductClick?: (product: Product) => void;
 }
 
 const ProductList: React.FC<ProductListProps> = ({ products, onProductClick }) => {
   if (!products || products.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: '3rem 0', color: '#666' }}>
-        <p>No se encontraron productos con estos filtros.</p>
+      <div style={{ textAlign: 'center', padding: '4rem 0', color: '#888', backgroundColor: '#1a1a1a', borderRadius: '12px', border: '1px dashed #333' }}>
+        <p style={{ fontSize: '1.2rem', fontWeight: 600 }}>No encontramos prendas con estos filtros.</p>
+        <p style={{ fontSize: '0.9rem' }}>Intenta buscando con otro término o selecciona "TODOS".</p>
       </div>
     );
   }
@@ -19,14 +20,14 @@ const ProductList: React.FC<ProductListProps> = ({ products, onProductClick }) =
   return (
     <div style={{ 
       display: 'grid', 
-      gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', 
+      /* Ajustamos ligeramente el minmax para que las tarjetas de ropa se vean bien proporcionadas */
+      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
       gap: '2.5rem' 
     }}>
       {products.map((product) => (
         <ProductCard 
           key={product.id} 
           product={product} 
-          // Pasamos la orden de ejecutar el clic y le mandamos qué producto es
           onClick={() => {
             if (onProductClick) {
               onProductClick(product);

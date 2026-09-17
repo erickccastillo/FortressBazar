@@ -24,13 +24,15 @@ export const useFetchProducts = ({ page, q, category }: UseFetchProductsArgs) =>
           page: page.toString(),
         });
         
-        if (q) params.append('q', q);
+        // IMPORTANTE: Se cambió a 'search' para que coincida con req.query.search en el backend
+        if (q) params.append('search', q); 
         if (category !== 'TODOS') params.append('category', category);
 
         // Apunta al backend de producción en Render o al local en desarrollo
         const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
         
-        const response = await fetch(`${apiUrl}/api/products?${params}`);
+        // CAMBIO PRINCIPAL: Apuntamos a /api/clothes
+        const response = await fetch(`${apiUrl}/api/clothes?${params}`);
         if (!response.ok) throw new Error('Error al cargar el catálogo');
         
         const data = await response.json();
