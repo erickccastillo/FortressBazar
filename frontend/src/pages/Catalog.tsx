@@ -4,69 +4,12 @@ import SearchBar from '../components/SearchBar';
 import { useFetchProducts } from '../hooks/useFetchProducts';
 import type { Product } from '../types/Product';
 
-// --- FUNCIÓN INTELIGENTE CON DISEÑO A 2 COLUMNAS ---
 const formatTechnicalDescription = (text?: string) => {
-  if (!text) return <p style={{ color: '#6b7280' }}>Descripción no disponible.</p>;
-
-  const keywords = [
-    "MARCA:", "APARIENCIA:", "ACABADO:", "ESPESOR:", "M²/CAJA:", 
-    "PZS/CAJA:", "KG/CAJA:", "USO:", "ÁREA DE APLICACIÓN:", 
-    "CALIDAD:", "ACABADO ESPECIAL:", "NIVEL DE ESFUMADO:", 
-    "ABSORCIÓN:", "TRÁNSITO:", "MODELO:", "FORMATO:", "TIPO:"
-  ];
-
-  let formattedText = text;
-  
-  keywords.forEach(keyword => {
-    const regex = new RegExp(`\\s*${keyword}`, 'g');
-    formattedText = formattedText.replace(regex, `\n${keyword}`);
-  });
-
-  const lines = formattedText.split('\n').filter(line => line.trim() !== '');
-
+  if (!text) return <p style={{ color: '#aaa' }}>Sin descripción.</p>;
   return (
-    <div style={{ 
-      display: 'grid', 
-      gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', // Crea 2 columnas dinámicas
-      columnGap: '2rem', 
-      rowGap: '0.75rem',
-      marginBottom: '1.5rem' 
-    }}>
-      {lines.map((line, index) => {
-        const [key, ...rest] = line.split(':');
-        const value = rest.join(':').trim();
-        
-        if (key && value) {
-          return (
-            <div key={index} style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              borderBottom: '1px solid #f3f4f6', 
-              paddingBottom: '0.4rem',
-            }}>
-              <span style={{ fontWeight: 600, color: '#111827', fontSize: '0.85rem' }}>
-                {key.trim()}
-              </span>
-              <span style={{ color: '#6b7280', fontSize: '0.85rem', textAlign: 'right', maxWidth: '60%' }}>
-                {value}
-              </span>
-            </div>
-          );
-        }
-        
-        // Si el texto es muy largo y no tiene "Llave: Valor", que ocupe las dos columnas enteras
-        return (
-          <p key={index} style={{ 
-            color: '#4b5563', 
-            fontSize: '0.95rem', 
-            margin: 0,
-            gridColumn: '1 / -1' 
-          }}>
-            {line}
-          </p>
-        );
-      })}
-    </div>
+    <p style={{ color: '#ccc', fontSize: '0.95rem', margin: 0, lineHeight: 1.6 }}>
+      {text}
+    </p>
   );
 };
 
@@ -75,6 +18,7 @@ const Catalog: React.FC = () => {
   const [category, setCategory] = useState<string>('TODOS');
   const [page, setPage] = useState(1);
 
+  // Hook que ya está apuntando a "clothes" en el backend
   const { products, loading, error, totalPages, totalProducts } = useFetchProducts({
     page,
     q: query,
@@ -82,26 +26,32 @@ const Catalog: React.FC = () => {
   });
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [activeImageIndex, setActiveImageIndex] = useState(0); // Para controlar qué foto se ve en el modal
   
+  // Categorías de ropa
   const categories = [
-    'TODOS', 'PISOS', 'MUROS', 'CERÁMICO', 'MPB', 
-    'AZULEJOS', 'DECORATIVOS', 'MONOMANDOS', 'MEZCLADORAS', 'LAVABOS'
+    'TODOS', 'CAMISA', 'CHAMARRA', 'PANTALON', 'PLAYERA', 'ACCESORIO'
   ];
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleProductClick = (producto: Product) => {
+    setSelectedProduct(producto);
+    setActiveImageIndex(0); // Reinicia la imagen al abrir otra prenda
+  };
+
   return (
     <section style={styles.container}>
+      
       {/* Cabecera del Catálogo */}
       <div style={styles.header}>
         <div style={styles.accentLine}></div>
-        <h2 style={styles.title}>Catálogo de Productos</h2>
+        <h2 style={styles.title}>NUESTRO CATÁLOGO</h2>
         <p style={styles.subtitle}>
-          Explora nuestra colección completa.
-          Pisos y azulejos seleccionados pieza por pieza para tus proyecto.
-          Selecciona el producto para ver los detalles.
+          Explora la colección completa. 
+          Ropa americana 100% original, importada y seleccionada cuidadosamente.
         </p>
       </div>
 
@@ -129,10 +79,9 @@ const Catalog: React.FC = () => {
                 }}
                 style={{
                   ...styles.categoryButton,
-                  backgroundColor: isActive ? '#0a2a5e' : '#f3f4f6',
-                  color: isActive ? '#ffffff' : '#4b5563',
-                  borderColor: isActive ? '#0a2a5e' : '#e5e7eb',
-                  boxShadow: isActive ? '0 4px 6px -1px rgba(10, 42, 94, 0.2)' : 'none',
+                  backgroundColor: isActive ? '#fff' : 'transparent',
+                  color: isActive ? '#000' : '#888',
+                  borderColor: isActive ? '#fff' : '#444',
                 }}
               >
                 {cat}
@@ -159,9 +108,9 @@ const Catalog: React.FC = () => {
       {!loading && !error && (
         <div style={styles.productSection}>
          <ProductList 
-            products={products as Product[]} 
-            onProductClick={(producto) => setSelectedProduct(producto)} 
-          />
+           products={products as Product[]} 
+           onProductClick={handleProductClick} 
+         />
         </div>
       )}
 
@@ -169,7 +118,7 @@ const Catalog: React.FC = () => {
       {!loading && !error && totalProducts > 0 && (
         <div style={styles.paginationContainer}>
           <div style={styles.paginationInfo}>
-            Mostrando <span style={styles.highlightText}>{products?.length ?? 0}</span> de <span style={styles.highlightText}>{totalProducts ?? 0}</span> productos
+            Mostrando <span style={styles.highlightText}>{products?.length ?? 0}</span> de <span style={styles.highlightText}>{totalProducts ?? 0}</span> prendas
           </div>
 
           {totalPages > 1 && (
@@ -182,7 +131,7 @@ const Catalog: React.FC = () => {
                 disabled={page === 1}
                 style={{
                   ...styles.pageButton,
-                  opacity: page === 1 ? 0.5 : 1,
+                  opacity: page === 1 ? 0.3 : 1,
                   cursor: page === 1 ? 'not-allowed' : 'pointer',
                 }}
               >
@@ -190,7 +139,7 @@ const Catalog: React.FC = () => {
               </button>
 
               <div style={styles.pageIndicator}>
-                Página <span style={{ fontWeight: 700, color: '#0a2a5e' }}>{page}</span> de {totalPages}
+                Página <span style={{ fontWeight: 700, color: '#fff' }}>{page}</span> de {totalPages}
               </div>
 
               <button
@@ -201,7 +150,7 @@ const Catalog: React.FC = () => {
                 disabled={page === totalPages}
                 style={{
                   ...styles.pageButton,
-                  opacity: page === totalPages ? 0.5 : 1,
+                  opacity: page === totalPages ? 0.3 : 1,
                   cursor: page === totalPages ? 'not-allowed' : 'pointer',
                 }}
               >
@@ -218,21 +167,42 @@ const Catalog: React.FC = () => {
       {selectedProduct && (
         <div style={styles.modalOverlay} onClick={() => setSelectedProduct(null)}>
           <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <button style={styles.closeButton} onClick={() => setSelectedProduct(null)}>
-              ✕
-            </button>
+            <button style={styles.closeButton} onClick={() => setSelectedProduct(null)}>✕</button>
             
             <div style={styles.modalGrid}>
-              {/* Columna Izquierda: Imagen */}
-              <div style={styles.modalImageWrapper}>
-                {selectedProduct.image_url ? (
-                  <img 
-                    src={selectedProduct.image_url} 
-                    alt={selectedProduct.name} 
-                    style={styles.modalImage} 
-                  />
-                ) : (
-                  <div style={{ color: '#9ca3af', fontWeight: 600 }}>Sin Imagen</div>
+              
+              {/* Columna Izquierda: Galería de Imágenes */}
+              <div style={styles.modalGalleryContainer}>
+                {/* Imagen Principal */}
+                <div style={styles.modalImageWrapper}>
+                  {selectedProduct.image_urls && selectedProduct.image_urls.length > 0 ? (
+                    <img 
+                      src={selectedProduct.image_urls[activeImageIndex]} 
+                      alt={selectedProduct.name} 
+                      style={styles.modalImage} 
+                    />
+                  ) : (
+                    <div style={{ color: '#666', fontWeight: 600 }}>Sin Imagen</div>
+                  )}
+                </div>
+
+                {/* Miniaturas de la Galería (Solo se muestran si hay más de 1 imagen) */}
+                {selectedProduct.image_urls && selectedProduct.image_urls.length > 1 && (
+                  <div style={styles.thumbnailContainer}>
+                    {selectedProduct.image_urls.map((url, idx) => (
+                      <div 
+                        key={idx} 
+                        onClick={() => setActiveImageIndex(idx)}
+                        style={{
+                          ...styles.thumbnail,
+                          borderColor: activeImageIndex === idx ? '#fff' : 'transparent',
+                          opacity: activeImageIndex === idx ? 1 : 0.5,
+                        }}
+                      >
+                        <img src={url} alt={`Miniatura ${idx}`} style={styles.thumbnailImg} />
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
 
@@ -245,33 +215,26 @@ const Catalog: React.FC = () => {
                   <p style={styles.modalPrice}>${selectedProduct.price?.toFixed(2)} MXN</p>
                 )}
                 
-                {/* LA DESCRIPCIÓN TÉCNICA AHORA ESTÁ A 2 COLUMNAS */}
                 {formatTechnicalDescription(selectedProduct.description)}
 
-                {/* Especificaciones Extras (Color, Material, Medidas) a 2 columnas */}
+                {/* Especificaciones Extras (Talla, Color) */}
                 <div style={styles.specsContainer}>
+                  {selectedProduct.size && (
+                    <div style={styles.specItem}>
+                      <span style={styles.specLabel}>Talla</span>
+                      <span style={styles.specValue}>{selectedProduct.size}</span>
+                    </div>
+                  )}
                   {selectedProduct.color && (
                     <div style={styles.specItem}>
                       <span style={styles.specLabel}>Color</span>
                       <span style={styles.specValue}>{selectedProduct.color}</span>
                     </div>
                   )}
-                  {selectedProduct.material && (
-                    <div style={styles.specItem}>
-                      <span style={styles.specLabel}>Material</span>
-                      <span style={styles.specValue}>{selectedProduct.material}</span>
-                    </div>
-                  )}
-                  {selectedProduct.medidas && (
-                    <div style={styles.specItem}>
-                      <span style={styles.specLabel}>Medidas</span>
-                      <span style={styles.specValue}>{selectedProduct.medidas}</span>
-                    </div>
-                  )}
                 </div>
 
-                <a href="/quote" style={styles.modalButton}>
-                  SOLICITAR COTIZACIÓN
+                <a href="#contacto" style={styles.modalButton}>
+                  CONTACTAR PARA COMPRAR
                 </a>
               </div>
             </div>
@@ -282,13 +245,16 @@ const Catalog: React.FC = () => {
   );
 };
 
-// Objeto de estilos
+// Objeto de estilos adaptado al tema oscuro de Fortress Bazar
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
-    padding: '4rem 2rem',
+    padding: '8rem 2rem 4rem 2rem', // Padding top extra para compensar el header fixed
     maxWidth: '1280px',
     margin: '0 auto',
-    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontFamily: '"Inter", sans-serif',
+    backgroundColor: '#111111',
+    color: '#e5e5e5',
+    minHeight: '100vh',
   },
   header: {
     textAlign: 'center',
@@ -300,30 +266,29 @@ const styles: { [key: string]: React.CSSProperties } = {
   accentLine: {
     width: '60px',
     height: '4px',
-    backgroundColor: '#FFD700',
-    borderRadius: '2px',
+    backgroundColor: '#ffffff',
     marginBottom: '1.5rem',
   },
   title: {
-    fontSize: '2.5rem',
-    fontWeight: 800,
-    color: '#0000FF',
+    fontFamily: '"Anton", sans-serif',
+    fontSize: 'clamp(2.5rem, 5vw, 4rem)',
+    color: '#ffffff',
     margin: '0 0 1rem 0',
-    letterSpacing: '-0.02em',
+    letterSpacing: '0.02em',
+    textTransform: 'uppercase',
   },
   subtitle: {
     fontSize: '1.125rem',
-    color: '#E3DAC9',
+    color: '#999',
     maxWidth: '600px',
     lineHeight: 1.6,
     margin: 0,
   },
   controlsCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#1a1a1a',
     borderRadius: '16px',
     padding: '2rem',
-    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)',
-    border: '1px solid #f3f4f6',
+    border: '1px solid #333',
     marginBottom: '3rem',
   },
   searchWrapper: {
@@ -343,6 +308,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '0.875rem',
     fontWeight: 600,
     transition: 'all 0.2s ease',
+    cursor: 'pointer',
   },
   productSection: {
     minHeight: '400px',
@@ -353,24 +319,24 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: 'center',
     justifyContent: 'center',
     padding: '4rem 0',
-    color: '#6b7280',
+    color: '#888',
     fontSize: '1.125rem',
   },
   spinner: {
     width: '40px',
     height: '40px',
-    border: '3px solid #f3f4f6',
-    borderTopColor: '#0a2a5e',
+    border: '3px solid #333',
+    borderTopColor: '#fff',
     borderRadius: '50%',
     animation: 'spin 1s linear infinite',
     marginBottom: '1rem',
   },
   errorMessage: {
-    backgroundColor: '#fef2f2',
-    color: '#991b1b',
+    backgroundColor: '#3b0000',
+    color: '#ffb3b3',
     padding: '1rem 1.5rem',
     borderRadius: '8px',
-    border: '1px solid #f87171',
+    border: '1px solid #ff4444',
     textAlign: 'center',
     margin: '2rem 0',
   },
@@ -380,17 +346,17 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: 'center',
     marginTop: '4rem',
     paddingTop: '2rem',
-    borderTop: '1px solid #e5e7eb',
+    borderTop: '1px solid #333',
     flexWrap: 'wrap',
     gap: '1.5rem',
   },
   paginationInfo: {
     fontSize: '0.95rem',
-    color: '#6b7280',
+    color: '#888',
   },
   highlightText: {
     fontWeight: 700,
-    color: '#111827',
+    color: '#fff',
   },
   paginationControls: {
     display: 'flex',
@@ -400,53 +366,53 @@ const styles: { [key: string]: React.CSSProperties } = {
   pageButton: {
     padding: '0.5rem 1.25rem',
     borderRadius: '8px',
-    border: '1px solid #e5e7eb',
-    backgroundColor: '#ffffff',
-    color: '#374151',
+    border: '1px solid #444',
+    backgroundColor: '#222',
+    color: '#fff',
     fontWeight: 600,
     fontSize: '0.9rem',
-    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
     transition: 'all 0.2s',
   },
   pageIndicator: {
     fontSize: '0.95rem',
-    color: '#6b7280',
+    color: '#888',
     minWidth: '100px',
     textAlign: 'center',
   },
 
-  /* --- ESTILOS DEL MODAL FLOTANTE --- */
+  /* --- MODAL FLOTANTE OSCURO --- */
   modalOverlay: {
     position: 'fixed',
     top: 0,
     left: 0,
     width: '100vw',
     height: '100vh',
-    backgroundColor: 'rgba(17, 24, 39, 0.85)', 
+    backgroundColor: 'rgba(0, 0, 0, 0.9)', 
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 9999,
     padding: '1rem',
     boxSizing: 'border-box',
-    backdropFilter: 'blur(5px)',
+    backdropFilter: 'blur(8px)',
   },
   modalContent: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#111',
     borderRadius: '16px',
-    maxWidth: '1050px', // CAMBIO: Aumentado para dar espacio a las 2 columnas
+    maxWidth: '1050px', 
     width: '100%',
     maxHeight: '90vh',
     overflowY: 'auto',
     position: 'relative',
-    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    border: '1px solid #333',
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
   },
   closeButton: {
     position: 'absolute',
     top: '1rem',
     right: '1rem',
-    background: '#f3f4f6',
-    border: 'none',
+    background: '#222',
+    border: '1px solid #444',
     borderRadius: '50%',
     width: '36px',
     height: '36px',
@@ -454,7 +420,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '1.2rem',
-    color: '#4b5563',
+    color: '#fff',
     cursor: 'pointer',
     zIndex: 10,
     transition: 'background-color 0.2s',
@@ -465,15 +431,21 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: '2.5rem',
     padding: '2.5rem',
   },
-  modalImageWrapper: {
+  modalGalleryContainer: {
     flex: '1 1 350px',
-    backgroundColor: '#f8fafc',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+  },
+  modalImageWrapper: {
+    backgroundColor: '#1a1a1a',
     borderRadius: '12px',
     overflow: 'hidden',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: '300px',
+    border: '1px solid #333',
   },
   modalImage: {
     width: '100%',
@@ -481,8 +453,29 @@ const styles: { [key: string]: React.CSSProperties } = {
     maxHeight: '500px',
     objectFit: 'contain',
   },
+  thumbnailContainer: {
+    display: 'flex',
+    gap: '0.5rem',
+    overflowX: 'auto',
+    paddingBottom: '0.5rem',
+  },
+  thumbnail: {
+    width: '60px',
+    height: '60px',
+    borderRadius: '8px',
+    border: '2px solid',
+    overflow: 'hidden',
+    cursor: 'pointer',
+    flexShrink: 0,
+    transition: 'all 0.2s',
+  },
+  thumbnailImg: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+  },
   modalDetails: {
-    flex: '2 1 450px', // CAMBIO: Le damos más ancho disponible a los detalles
+    flex: '2 1 450px', 
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
@@ -490,62 +483,66 @@ const styles: { [key: string]: React.CSSProperties } = {
   modalCategory: {
     fontSize: '0.85rem',
     fontWeight: 700,
-    color: '#e1b71f',
-    letterSpacing: '1px',
+    color: '#888',
+    letterSpacing: '2px',
     marginBottom: '0.5rem',
     textTransform: 'uppercase',
   },
   modalTitle: {
-    fontSize: '2rem',
-    fontWeight: 800,
-    color: '#111827',
+    fontFamily: '"Anton", sans-serif',
+    fontSize: '2.5rem',
+    color: '#fff',
     marginBottom: '0.5rem',
-    lineHeight: 1.2,
+    lineHeight: 1.1,
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
   },
   modalPrice: {
-    fontSize: '1.5rem',
+    fontSize: '1.75rem',
     fontWeight: 700,
-    color: '#e1b71f',
+    color: '#fff',
     marginBottom: '1.5rem',
   },
-  // CAMBIO: Este contenedor ahora también usa Grid de 2 columnas para igualar al de arriba
   specsContainer: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-    columnGap: '2rem',
-    rowGap: '0.75rem',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.75rem',
+    marginTop: '1.5rem',
     marginBottom: '2.5rem',
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#1a1a1a',
     padding: '1.5rem',
     borderRadius: '8px',
-    border: '1px solid #e5e7eb',
+    border: '1px solid #333',
   },
   specItem: {
     display: 'flex',
     justifyContent: 'space-between',
-    borderBottom: '1px solid #e5e7eb',
-    paddingBottom: '0.4rem',
+    borderBottom: '1px solid #333',
+    paddingBottom: '0.5rem',
   },
   specLabel: {
     fontWeight: 600,
-    color: '#111827',
-    fontSize: '0.85rem'
+    color: '#aaa',
+    fontSize: '0.9rem',
+    textTransform: 'uppercase',
   },
   specValue: {
-    color: '#6b7280',
-    fontSize: '0.85rem'
+    color: '#fff',
+    fontSize: '0.9rem',
+    fontWeight: 'bold',
   },
   modalButton: {
-    backgroundColor: '#111827', 
-    color: '#ffffff',
+    backgroundColor: '#fff', 
+    color: '#000',
     padding: '1rem',
     borderRadius: '8px',
     textAlign: 'center',
-    fontWeight: 700,
+    fontWeight: 800,
     textDecoration: 'none',
-    boxShadow: '0 4px 12px rgba(17, 24, 39, 0.2)',
     transition: 'transform 0.2s',
-    marginTop: 'auto', // Asegura que el botón se empuje hacia abajo si hay espacio
+    marginTop: 'auto',
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
   },
 };
 
