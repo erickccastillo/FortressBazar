@@ -167,8 +167,7 @@ const AdminProductForm: React.FC = () => {
   }
 
   return (
-    <div className="admin-container" style={{ background: '#111', minHeight: '100vh', color: '#eee', padding: '2rem' }}>
-      
+<div className="admin-container" style={{ background: '#111', minHeight: '100vh', color: '#eee', padding: '2rem', paddingTop: '120px' }}>      
       <div className="admin-card" style={{ background: '#1a1a1a', padding: '2rem', borderRadius: '1rem', border: '1px solid #333', maxWidth: '800px', margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
           <Link
