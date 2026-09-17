@@ -15,6 +15,7 @@ export default function BazarHome() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
 
   useEffect(() => {
     IMAGES.forEach((image) => {
@@ -23,7 +24,9 @@ export default function BazarHome() {
     });
 
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 640);
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      setIsTablet(width >= 768 && width < 1024);
     };
     
     handleResize();
@@ -54,52 +57,75 @@ export default function BazarHome() {
 
     const baseTransition = 'transform 650ms cubic-bezier(0.4,0,0.2,1), filter 650ms cubic-bezier(0.4,0,0.2,1), opacity 650ms cubic-bezier(0.4,0,0.2,1), left 650ms cubic-bezier(0.4,0,0.2,1), bottom 650ms cubic-bezier(0.4,0,0.2,1), height 650ms cubic-bezier(0.4,0,0.2,1)';
 
+    // Ajustes de proporciones responsivas para el carrusel principal
+    const getScale = (roleName: string) => {
+      if (roleName === 'center') return isMobile ? 1.3 : isTablet ? 1.5 : 1.68;
+      return 1;
+    };
+
+    const getHeight = (roleName: string) => {
+      if (roleName === 'center') return isMobile ? '55%' : '92%';
+      if (roleName === 'back') return isMobile ? '15%' : '22%';
+      return isMobile ? '18%' : '28%';
+    };
+
+    const getBottom = (roleName: string) => {
+      if (roleName === 'center') return isMobile ? '30%' : '0';
+      return isMobile ? '40%' : '12%';
+    };
+
+    const getLeft = (roleName: string) => {
+      if (roleName === 'center' || roleName === 'back') return '50%';
+      if (roleName === 'left') return isMobile ? '15%' : '30%';
+      return isMobile ? '85%' : '70%'; // right
+    };
+
     switch (role) {
       case 'center':
         return {
-          transform: `translateX(-50%) scale(${isMobile ? 1.25 : 1.68})`,
+          transform: `translateX(-50%) scale(${getScale('center')})`,
           filter: 'blur(0px)',
           opacity: 1,
           zIndex: 20,
-          left: '50%',
-          height: isMobile ? '60%' : '92%',
-          bottom: isMobile ? '22%' : '0',
+          left: getLeft('center'),
+          height: getHeight('center'),
+          bottom: getBottom('center'),
           transition: baseTransition,
           willChange: 'transform, filter, opacity',
         };
       case 'left':
         return {
-          transform: `translateX(-50%) scale(1)`,
+          transform: `translateX(-50%) scale(${getScale('left')})`,
           filter: 'blur(2px)',
           opacity: 0.85,
           zIndex: 10,
-          left: isMobile ? '20%' : '30%',
-          height: isMobile ? '16%' : '28%',
-          bottom: isMobile ? '32%' : '12%',
+          left: getLeft('left'),
+          height: getHeight('left'),
+          bottom: getBottom('left'),
           transition: baseTransition,
           willChange: 'transform, filter, opacity',
         };
       case 'right':
         return {
-          transform: `translateX(-50%) scale(1)`,
+          transform: `translateX(-50%) scale(${getScale('right')})`,
           filter: 'blur(2px)',
           opacity: 0.85,
           zIndex: 10,
-          left: isMobile ? '80%' : '70%',
-          height: isMobile ? '16%' : '28%',
-          bottom: isMobile ? '32%' : '12%',
+          left: getLeft('right'),
+          height: getHeight('right'),
+          bottom: getBottom('right'),
           transition: baseTransition,
           willChange: 'transform, filter, opacity',
         };
       case 'back':
         return {
-          transform: `translateX(-50%) scale(1)`,
+          transform: `translateX(-50%) scale(${getScale('back')})`,
           filter: 'blur(4px)',
           opacity: 1,
           zIndex: 5,
-          left: '50%',
-          height: isMobile ? '13%' : '22%',
-          bottom: isMobile ? '32%' : '12%',
+          left: getLeft('back'),
+          height: getHeight('back'),
+          bottom: getBottom('back'),
           transition: baseTransition,
           willChange: 'transform, filter, opacity',
         };
@@ -111,22 +137,21 @@ export default function BazarHome() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;900&display=swap');
       `}</style>
 
-      {/* AQUÍ ESTÁ EL CAMBIO CLAVE: Cambiamos w-full por w-screen m-0 p-0 */}
+      {/* Hero Section */}
       <div 
-        className="relative w-screen m-0 p-0 overflow-hidden left-0 right-0"
+        className="relative w-screen h-screen m-0 p-0 overflow-hidden"
         style={{ 
           backgroundColor: IMAGES[activeIndex].bg,
           transition: 'background-color 650ms cubic-bezier(0.4,0,0.2,1)',
-          fontFamily: "'Inter', sans-serif"
         }}
       >
-        <div className="relative w-full h-screen overflow-hidden">
+        <div className="relative w-full h-full overflow-hidden">
           
           <div 
-            className="absolute inset-0 pointer-events-none z-50 opacity-40"
+            className="absolute inset-0 pointer-events-none z-50 opacity-40 mix-blend-overlay"
             style={{ 
               backgroundImage: `url("${grainSvg}")`,
               backgroundSize: '200px 200px',
@@ -134,24 +159,26 @@ export default function BazarHome() {
             }}
           />
 
+          {/* Gran Título de Fondo */}
           <div 
-            className="absolute inset-x-0 flex items-center justify-center pointer-events-none select-none z-10 text-white uppercase whitespace-nowrap"
+            className="absolute inset-x-0 flex items-center justify-center pointer-events-none select-none z-10 text-white uppercase whitespace-nowrap opacity-90"
             style={{ 
-              top: '18%', 
+              top: isMobile ? '12%' : '18%', 
               fontFamily: "'Anton', sans-serif",
-              fontSize: 'clamp(90px, 28vw, 380px)',
-              fontWeight: 900,
+              fontSize: 'clamp(70px, 25vw, 380px)',
               lineHeight: 1,
-              letterSpacing: '-0.02em'
+              letterSpacing: '-0.02em',
+              textShadow: '0 20px 40px rgba(0,0,0,0.5)'
             }}
           >
             FORTRESS
           </div>
 
-          <div className="absolute top-24 left-4 sm:left-8 z-[60] text-xs font-semibold uppercase text-white opacity-90 tracking-[0.18em]">
+          <div className="absolute top-24 md:top-28 left-6 md:left-12 z-[60] text-[10px] md:text-xs font-semibold uppercase text-white/90 tracking-[0.2em]">
             FORTRESS BAZAR
           </div>
 
+          {/* Carrusel */}
           <div className="absolute inset-0 z-30">
             {IMAGES.map((img, index) => (
               <div 
@@ -163,53 +190,51 @@ export default function BazarHome() {
                   src={img.src} 
                   alt={`Prenda Fortress ${index + 1}`} 
                   draggable={false}
-                  className="w-full h-full object-cover object-center rounded-2xl shadow-2xl select-none border border-white/10"
+                  className="w-full h-full object-cover object-center rounded-xl md:rounded-2xl shadow-2xl select-none border border-white/20"
                 />
               </div>
             ))}
           </div>
 
-          <div className="absolute bottom-6 left-4 sm:bottom-20 sm:left-24 z-[60] max-w-[320px]">
-            <p className="font-bold uppercase tracking-widest mb-2 sm:mb-3 text-base sm:text-[22px] text-white opacity-95" style={{ letterSpacing: '0.02em' }}>
-              ROPA AMERICANA
+          {/* Textos y Controles Bottom Left */}
+          <div className="absolute bottom-10 left-6 md:bottom-20 md:left-24 z-[60] max-w-[280px] md:max-w-[320px]">
+            <p className="font-['Anton'] uppercase tracking-wide mb-3 md:mb-4 text-3xl md:text-5xl text-white drop-shadow-lg">
+              ROPA <br className="hidden md:block"/> AMERICANA
             </p>
-            <p className="hidden sm:block text-sm text-white opacity-85 leading-[1.6] mb-5">
-              Estilo auténtico y marcas originales a precios que no podrás creer. Seleccionamos cuidadosamente lo mejor de la moda americana para ti. Descubre tu nuevo outfit favorito hoy mismo.
+            <p className="hidden md:block text-sm text-white/90 font-['Inter'] leading-relaxed mb-6 font-medium">
+              Estilo auténtico y marcas originales a precios que no podrás creer. Seleccionamos cuidadosamente lo mejor de la moda americana para ti.
             </p>
             
             <div className="flex gap-4">
               <button 
                 onClick={() => navigate('prev')}
-                className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-transparent border-2 border-white text-white flex items-center justify-center transition-all duration-150 ease-in-out hover:scale-105 hover:bg-white/10"
+                className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/20 backdrop-blur-sm border border-white/40 text-white flex items-center justify-center transition-all duration-200 hover:scale-105 hover:bg-white hover:text-black hover:border-white"
                 aria-label="Anterior"
               >
-                <ArrowLeft size={26} strokeWidth={2.25} />
+                <ArrowLeft size={24} strokeWidth={2.5} />
               </button>
               <button 
                 onClick={() => navigate('next')}
-                className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-transparent border-2 border-white text-white flex items-center justify-center transition-all duration-150 ease-in-out hover:scale-105 hover:bg-white/10"
+                className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/20 backdrop-blur-sm border border-white/40 text-white flex items-center justify-center transition-all duration-200 hover:scale-105 hover:bg-white hover:text-black hover:border-white"
                 aria-label="Siguiente"
               >
-                <ArrowRight size={26} strokeWidth={2.25} />
+                <ArrowRight size={24} strokeWidth={2.5} />
               </button>
             </div>
           </div>
 
-          <div className="absolute bottom-6 right-4 sm:bottom-20 sm:right-10 z-[60]">
+          {/* Enlace "Conócenos" Bottom Right */}
+          <div className="absolute bottom-10 right-6 md:bottom-20 md:right-16 z-[60]">
             <a 
               href="#nosotros" 
-              className="flex items-center gap-2 sm:gap-4 text-white opacity-95 hover:opacity-100 transition-opacity duration-200 uppercase no-underline cursor-pointer group"
-              style={{
-                fontFamily: "'Anton', sans-serif",
-                fontSize: 'clamp(20px, 4vw, 56px)',
-                letterSpacing: '-0.02em',
-                lineHeight: 1
-              }}
+              className="flex items-center gap-3 text-white hover:text-gray-200 transition-colors uppercase no-underline cursor-pointer group"
             >
-              CONÓCENOS
+              <span className="font-['Anton'] text-2xl md:text-5xl tracking-wide drop-shadow-lg">
+                CONÓCENOS
+              </span>
               <ArrowRight 
-                className="w-5 h-5 sm:w-8 sm:h-8 transition-transform group-hover:translate-x-2" 
-                strokeWidth={2.25} 
+                className="w-8 h-8 md:w-12 md:h-12 transition-transform duration-300 group-hover:translate-x-3 drop-shadow-lg" 
+                strokeWidth={2} 
               />
             </a>
           </div>
@@ -217,64 +242,66 @@ export default function BazarHome() {
         </div>
       </div>
 
-      {/* AQUÍ ESTÁ EL OTRO CAMBIO CLAVE: Cambiamos w-full por w-screen m-0 p-0 */}
-      <section id="nosotros" className="w-screen m-0 bg-[#111111] text-neutral-300 py-24 px-6 sm:px-12 lg:px-24 font-['Inter'] overflow-hidden">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      {/* Sección "Nosotros" */}
+      <section id="nosotros" className="w-screen bg-[#111111] text-neutral-300 py-24 md:py-32 px-6 md:px-16 lg:px-24 font-['Inter'] overflow-hidden">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
           
-          <div>
-            <h2 className="text-5xl sm:text-6xl lg:text-7xl font-bold uppercase text-white mb-6" style={{ fontFamily: "'Anton', sans-serif", letterSpacing: '-0.02em' }}>
-              NUESTRA ESENCIA
+          <div className="flex flex-col">
+            <h2 className="text-5xl md:text-7xl lg:text-8xl font-['Anton'] uppercase text-white mb-6 tracking-wide">
+              NUESTRA <br/> ESENCIA
             </h2>
-            <div className="w-24 h-1.5 bg-white mb-10"></div>
+            <div className="w-24 h-2 bg-white mb-10"></div>
             
-            <p className="text-xl sm:text-2xl leading-relaxed mb-6 font-medium text-white/95">
-              En <span className="font-bold text-white">Fortress Bazar</span> rompemos las reglas del retail tradicional. Traemos la mejor ropa americana directamente a tus manos.
+            <p className="text-xl md:text-2xl leading-relaxed mb-6 font-semibold text-white">
+              En <span className="font-bold underline decoration-2 underline-offset-4">Fortress Bazar</span> rompemos las reglas del retail tradicional. Traemos la mejor ropa americana directamente a tus manos.
             </p>
             
-            <p className="text-base sm:text-lg leading-relaxed mb-8 opacity-80">
+            <p className="text-base md:text-lg leading-relaxed mb-10 text-neutral-400 font-medium">
               Nos especializamos en prendas 100% originales, con un enfoque implacable en calidad y estilo. Mantenemos nuestros precios bajos para que vestir increíble no sea un lujo inalcanzable, sino tu estilo de vida de todos los días.
             </p>
             
-            <p className="text-base sm:text-lg font-bold text-white opacity-90 uppercase tracking-wide">
-              Marcas Originales • Calidad Importada • Precios Justos
-            </p>
+            <div className="inline-flex flex-wrap gap-3">
+              <span className="px-4 py-2 border border-white/20 rounded-full text-sm font-bold text-white uppercase tracking-wider">Marcas Originales</span>
+              <span className="px-4 py-2 border border-white/20 rounded-full text-sm font-bold text-white uppercase tracking-wider">Calidad Importada</span>
+              <span className="px-4 py-2 border border-white/20 rounded-full text-sm font-bold text-white uppercase tracking-wider">Precios Justos</span>
+            </div>
           </div>
 
-          <div className="bg-[#1a1a1a] p-8 sm:p-12 rounded-[2rem] border border-white/5 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-8 opacity-5">
-              <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <div className="bg-[#161616] p-8 md:p-12 rounded-[2rem] border border-white/10 shadow-2xl relative overflow-hidden group hover:border-white/20 transition-colors duration-500">
+            <div className="absolute top-0 right-0 p-8 opacity-5 transition-opacity duration-500 group-hover:opacity-10">
+              <svg width="180" height="180" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 2L2 22h20L12 2zm0 4.5l6.5 13h-13L12 6.5z"/>
               </svg>
             </div>
 
-            <h3 className="text-2xl font-bold text-white mb-8 uppercase tracking-widest text-sm opacity-90">
+            <h3 className="text-2xl font-['Anton'] text-white mb-10 uppercase tracking-widest">
               Puntos de Entrega Seguros
             </h3>
             
-            <ul className="space-y-8 relative z-10">
-              <li className="flex items-start gap-5">
-                <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center shrink-0 border border-white/10">
-                  <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            <ul className="space-y-10 relative z-10">
+              <li className="flex items-start gap-6">
+                <div className="w-16 h-16 rounded-2xl bg-white text-black flex items-center justify-center shrink-0 shadow-lg">
+                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
                 <div>
-                  <h4 className="text-xl font-bold text-white mb-2">Tren Ligero GDL</h4>
-                  <p className="text-base opacity-75 leading-relaxed">
+                  <h4 className="text-xl font-bold text-white mb-3">Tren Ligero GDL</h4>
+                  <p className="text-sm md:text-base text-neutral-400 font-medium leading-relaxed">
                     Hacemos entregas personales y completamente seguras en las distintas estaciones de la Zona Metropolitana de Guadalajara. Comodidad en tu ruta.
                   </p>
                 </div>
               </li>
               
-              <li className="flex items-start gap-5">
-                <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center shrink-0 border border-white/10">
-                  <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              <li className="flex items-start gap-6">
+                <div className="w-16 h-16 rounded-2xl bg-white text-black flex items-center justify-center shrink-0 shadow-lg">
+                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                 </div>
                 <div>
-                  <h4 className="text-xl font-bold text-white mb-2">Sucursales Casa Blanca</h4>
-                  <p className="text-base opacity-75 leading-relaxed">
+                  <h4 className="text-xl font-bold text-white mb-3">Sucursales Casa Blanca</h4>
+                  <p className="text-sm md:text-base text-neutral-400 font-medium leading-relaxed">
                     Visítanos y recoge tus prendas favoritas directamente en nuestras sucursales físicas ubicadas en Casa Blanca. ¡Ven y descubre lo que acaba de llegar!
                   </p>
                 </div>
