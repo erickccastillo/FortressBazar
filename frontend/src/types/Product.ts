@@ -1,13 +1,13 @@
 export interface Product {
-  id: string;
+  id: string; // o number, dependiendo de cómo lo tengas en Supabase (normalmente string/UUID)
   name: string;
   description: string;
   price: number;
   category: string;
-  image_url: string;
-  color: string;
-  material: string;
-  medidas: string;
+  size: string; // NUEVO
+  color?: string; // Opcional
+  image_urls: string[]; // NUEVO (Reemplaza a image_url: string)
+  created_at?: string;
 }
 
 /**
