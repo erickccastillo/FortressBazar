@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-
+import './home.css';
 // Imágenes desde la carpeta local 'images' y colores solicitados
 const IMAGES = [
   { src: '../images/ropa-1.jpg', bg: '#1E293B', panel: '#334155' }, // Azul marino oscuro
