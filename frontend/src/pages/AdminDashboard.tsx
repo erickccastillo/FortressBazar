@@ -3,135 +3,145 @@ import { Link } from 'react-router-dom';
 import { useFetchProducts } from '../hooks/useFetchProducts';
 import SearchBar from '../components/SearchBar';
 
-
 const AdminDashboard: React.FC = () => {
   const [query, setQuery] = useState('');
   
-  // Reutilizamos tu hook mágico del catálogo, pero solo pedimos la página 1 
-  // (podemos traer muchos de un golpe si el buscador es bueno)
+  // Reutilizamos tu hook del catálogo. Recuerda que aunque diga "Products", 
+  // por dentro tu backend ya está apuntando a la tabla 'clothes'.
   const { products, loading, error } = useFetchProducts({
     page: 1,
     q: query,
     category: 'TODOS',
   });
-const handleLogout = () => {
-  localStorage.removeItem("adminToken");
-  window.location.href = "/login";
-};
+
+  const handleLogout = () => {
+    localStorage.removeItem("adminToken");
+    window.location.href = "/login";
+  };
 
   return (
-    <div style={{ padding: '2rem', paddingTop: '120px', maxWidth: '1000px', margin: '0 auto', minHeight: '80vh' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '2rem', color: '#0a2a5e', margin: 0 }}>Gestión de Productos</h2>
-               <button
-  onClick={handleLogout}
-  style={{
-    backgroundColor: "#dc2626",
-    color: "#fff",
-    border: "none",
-    borderRadius: "8px",
-    padding: "10px 16px",
-    cursor: "pointer",
-    fontWeight: 600,
-  }}
->
-  Cerrar sesión
-</button>     
-        {/* Botón para crear un nuevo producto */}
-        <Link 
-          to="/admin/new" 
-          style={{ 
-            backgroundColor: '#0a2a5e', color: 'white', padding: '0.75rem 1.5rem', 
-            borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' 
-          }}
-        >
-          + Nuevo Producto
-        </Link>
-      </div>
+    <div style={{ background: '#111', minHeight: '100vh', color: '#eee', paddingBottom: '3rem' }}>
+      <div style={{ padding: '2rem', paddingTop: '120px', maxWidth: '1200px', margin: '0 auto' }}>
+        
+        {/* Header del Dashboard */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+          <h2 style={{ fontFamily: 'Anton', fontSize: '2.5rem', color: '#fff', margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>
+            Inventario Fortress
+          </h2>
+          
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <Link 
+              to="/admin/new" 
+              style={{ 
+                backgroundColor: '#fff', color: '#000', padding: '0.75rem 1.5rem', 
+                borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold',
+                textTransform: 'uppercase', fontSize: '0.9rem'
+              }}
+            >
+              + Nueva Prenda
+            </Link>
+            
+            <button
+              onClick={handleLogout}
+              style={{
+                backgroundColor: "transparent",
+                color: "#ff4444",
+                border: "1px solid #ff4444",
+                borderRadius: "8px",
+                padding: "0.75rem 1.5rem",
+                cursor: "pointer",
+                fontWeight: 'bold',
+                textTransform: 'uppercase',
+                fontSize: '0.9rem'
+              }}
+            >
+              Salir
+            </button> 
+          </div>
+        </div>
 
+        {/* Buscador */}
+        <div style={{ marginBottom: '2rem', maxWidth: '500px' }}>
+          <SearchBar 
+            value={query} 
+            onChange={(v) => setQuery(v)} 
+          />
+          <p style={{ fontSize: '0.9rem', color: '#888', marginTop: '8px' }}>
+            Escribe el nombre de la prenda para buscarla rápidamente.
+          </p>
+        </div>
 
-      <div style={{ marginBottom: '2rem', maxWidth: '500px' }}>
-        <SearchBar 
-          value={query} 
-          onChange={(v) => setQuery(v)} 
-        />
-        <p style={{ fontSize: '0.9rem', color: '#666', marginTop: '-10px' }}>
-          Escribe el nombre para buscar un producto y editarlo.
-        </p>
-      </div>
+        {loading && <p style={{ color: '#fff' }}>Cargando inventario...</p>}
+        {error && <p style={{ color: '#ff4444' }}>Error: {error}</p>}
 
-
-      {loading && <p>Cargando inventario...</p>}
-      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-
-
-      {/* Tabla de Productos */}
-      {!loading && !error && (
-        <div style={{ overflowX: 'auto', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-            <thead>
-            <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #eaeaea' }}>
-              <th style={{ padding: '1rem' }}>Imagen</th>
-              <th style={{ padding: '1rem' }}>Nombre</th>
-              <th style={{ padding: '1rem' }}>Categoría</th>
-              <th style={{ padding: '1rem' }}>Color</th>
-              <th style={{ padding: '1rem' }}>Material</th>
-              <th style={{ padding: '1rem' }}>Medidas</th>
-              <th style={{ padding: '1rem' }}>Precio</th>
-              <th style={{ padding: '1rem', textAlign: 'center' }}>Acción</th>
-            </tr>
-          </thead>
-            <tbody>
-              {products.length === 0 ? (
-                <tr>
-                  <td colSpan={5} style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
-                    No se encontraron productos.
-                  </td>
+        {/* Tabla de Productos adaptada a ropa */}
+        {!loading && !error && (
+          <div style={{ overflowX: 'auto', backgroundColor: '#1a1a1a', borderRadius: '12px', border: '1px solid #333' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+              <thead>
+                <tr style={{ backgroundColor: '#222', borderBottom: '1px solid #444', color: '#aaa', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  <th style={{ padding: '1.2rem 1rem' }}>Foto</th>
+                  <th style={{ padding: '1.2rem 1rem' }}>Prenda</th>
+                  <th style={{ padding: '1.2rem 1rem' }}>Categoría</th>
+                  <th style={{ padding: '1.2rem 1rem' }}>Talla</th>
+                  <th style={{ padding: '1.2rem 1rem' }}>Color</th>
+                  <th style={{ padding: '1.2rem 1rem' }}>Precio</th>
+                  <th style={{ padding: '1.2rem 1rem', textAlign: 'center' }}>Acción</th>
                 </tr>
-              ) : (
-                products.map((product) => (
-                  <tr key={product.id} style={{ borderBottom: '1px solid #eaeaea' }}>
-                    <td style={{ padding: '1rem' }}>
-                      <img src={product.image_url} alt={product.name} style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '6px' }} />
-                    </td>
-                    <td style={{ padding: '1rem', fontWeight: 500 }}>{product.name}</td>
-                  <td style={{ padding: '1rem', color: '#666' }}>{product.category}</td>
-                  <td style={{ padding: '1rem' }}>{product.color}</td>
-                  <td style={{ padding: '1rem' }}>{product.material}</td>
-                  <td style={{ padding: '1rem' }}>{product.medidas}</td>
-                  <td style={{ padding: '1rem', color: '#0a2a5e', fontWeight: 'bold' }}>${product.price}</td>
-                    <td style={{ padding: '1rem', textAlign: 'center', verticalAlign: 'middle',}}>
-                      {/* Botón que te lleva al formulario de edición con el ID dinámico */}
-                      <Link
-                      to={`/admin/edit/${product.id}`}
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.4rem',
-                        backgroundColor: '#e1b71f',
-                        color: '#0a2a5e',
-                        padding: '0.75rem 1.2rem',
-                        borderRadius: '6px',
-                        textDecoration: 'none',
-                        fontWeight: 600,
-                        fontSize: '0.9rem',
-                        minWidth: '110px',
-                      }}
-                    >
-                      Editar 
-                    </Link>
+              </thead>
+              <tbody>
+                {products.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} style={{ padding: '3rem', textAlign: 'center', color: '#666' }}>
+                      No se encontraron prendas en el inventario.
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+                ) : (
+                  products.map((product) => (
+                    <tr key={product.id} style={{ borderBottom: '1px solid #333', transition: 'background 0.2s' }}>
+                      <td style={{ padding: '1rem' }}>
+                        {/* Mostrar la primera imagen del arreglo image_urls, o una por defecto si no hay */}
+                        <img 
+                          src={product.image_urls && product.image_urls.length > 0 ? product.image_urls[0] : 'https://placehold.co/100x100/222/ccc?text=No+Foto'} 
+                          alt={product.name} 
+                          style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #444' }} 
+                        />
+                      </td>
+                      <td style={{ padding: '1rem', fontWeight: 'bold', color: '#fff' }}>{product.name}</td>
+                      <td style={{ padding: '1rem', color: '#aaa' }}>{product.category}</td>
+                      <td style={{ padding: '1rem', fontWeight: 'bold' }}>{product.size || '-'}</td>
+                      <td style={{ padding: '1rem' }}>{product.color || '-'}</td>
+                      <td style={{ padding: '1rem', color: '#fff', fontWeight: 'bold' }}>${product.price}</td>
+                      <td style={{ padding: '1rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                        <Link
+                          to={`/admin/edit/${product.id}`}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: '#fff',
+                            color: '#000',
+                            padding: '0.5rem 1.2rem',
+                            borderRadius: '6px',
+                            textDecoration: 'none',
+                            fontWeight: 'bold',
+                            fontSize: '0.85rem',
+                            textTransform: 'uppercase'
+                          }}
+                        >
+                          Editar 
+                        </Link>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
-
 
 export default AdminDashboard;
