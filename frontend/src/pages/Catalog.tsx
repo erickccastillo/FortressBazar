@@ -43,7 +43,8 @@ const Catalog: React.FC = () => {
   };
 
   return (
-    <section style={styles.container}>
+    // CAMBIO AQUI: w-screen y m-0 para asegurar el ancho total
+    <section className="w-screen m-0 overflow-x-hidden" style={styles.container}>
       
       {/* Cabecera del Catálogo */}
       <div style={styles.header}>
@@ -105,12 +106,15 @@ const Catalog: React.FC = () => {
       )}
 
       {/* Lista de Productos */}
+      {/* CAMBIO AQUI: Contenedor con max-width para centrar el grid y evitar que se pegue a la izquierda */}
       {!loading && !error && (
         <div style={styles.productSection}>
-         <ProductList 
-           products={products as Product[]} 
-           onProductClick={handleProductClick} 
-         />
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <ProductList 
+              products={products as Product[]} 
+              onProductClick={handleProductClick} 
+            />
+          </div>
         </div>
       )}
 
@@ -249,8 +253,7 @@ const Catalog: React.FC = () => {
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
     padding: '8rem 2rem 4rem 2rem', // Padding top extra para compensar el header fixed
-    maxWidth: '1280px',
-    margin: '0 auto',
+    // CAMBIO AQUI: Se eliminó el maxWidth de aquí para que el fondo cubra todo
     fontFamily: '"Inter", sans-serif',
     backgroundColor: '#111111',
     color: '#e5e5e5',
@@ -290,6 +293,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: '2rem',
     border: '1px solid #333',
     marginBottom: '3rem',
+    maxWidth: '1200px', // Añadimos maxWidth aquí
+    margin: '0 auto 3rem auto', // y margin auto para centrarlo
   },
   searchWrapper: {
     maxWidth: '600px',
@@ -312,6 +317,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   productSection: {
     minHeight: '400px',
+    padding: '0 1rem', // Pequeño padding lateral para que las cards no toquen el borde en móviles
   },
   statusMessage: {
     display: 'flex',
@@ -338,7 +344,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: '8px',
     border: '1px solid #ff4444',
     textAlign: 'center',
-    margin: '2rem 0',
+    margin: '2rem auto', // Centramos el mensaje de error
+    maxWidth: '800px',
   },
   paginationContainer: {
     display: 'flex',
@@ -349,6 +356,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderTop: '1px solid #333',
     flexWrap: 'wrap',
     gap: '1.5rem',
+    maxWidth: '1200px', // Centramos la paginación también
+    margin: '4rem auto 0 auto',
   },
   paginationInfo: {
     fontSize: '0.95rem',
