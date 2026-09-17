@@ -1,88 +1,79 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import logo from '../images/logo.png';
+// Asegúrate de tener tu logo en esta ruta o actualízala
+import logo from '../images/logo.png'; 
 
 const Header: React.FC = () => {
-  return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000 }}>
-      <header
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '1rem 2rem',
-          backgroundColor: '#fff',
-        }}
-      >
-          {/* Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-        <img
-          src={logo} // 2. Usa la variable importada aquí (sin comillas)
-          alt="Logo Revestimento"
-          style={{
-            width: 60,
-            height: 60,
-            borderRadius: 6,
-            objectFit: 'cover',
-          }}
-        />
-        <div>
-          <div style={{ fontFamily: 'Georgia', fontWeight: 700, fontSize: '1.25rem', color: '#000000' }}>
-            Revestimento
-          </div>
-          <div style={{ fontSize: '0.65rem', color: '#ba9e10' }}>PISOS & AZULEJOS</div>
-        </div>
-      </div>
+  const [scrolled, setScrolled] = useState(false);
 
-        {/* Navegación */}
-        <nav style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+  // Efecto para cambiar el fondo al hacer scroll (opcional pero recomendado para el diseño oscuro)
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <div className="fixed top-0 left-0 right-0 z-[1000] font-['Inter']">
+      <header
+        className={`flex justify-between items-center px-6 sm:px-12 py-4 transition-all duration-300 ${
+          scrolled ? 'bg-[#111111]/90 backdrop-blur-md shadow-lg shadow-black/20 border-b border-white/10' : 'bg-transparent'
+        }`}
+      >
+        {/* Logo y Nombre de Marca */}
+        <Link to="/" className="flex items-center gap-3 no-underline group">
+          <img
+            src={logo}
+            alt="Logo Fortress Bazar"
+            className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg object-cover border border-white/20 transition-transform group-hover:scale-105"
+          />
+          <div className="flex flex-col">
+            <span className="font-['Anton'] text-2xl sm:text-3xl text-white tracking-wide uppercase leading-none">
+              Fortress
+            </span>
+            <span className="text-[10px] sm:text-xs text-neutral-400 font-semibold tracking-[0.2em] uppercase mt-1">
+              Bazar Americano
+            </span>
+          </div>
+        </Link>
+
+        {/* Navegación Desktop */}
+        <nav className="hidden sm:flex items-center gap-8">
           <NavLink
             to="/"
-            style={({ isActive }) => ({
-              textDecoration: isActive ? 'underline' : 'none',
-              color: '#333',
-              fontWeight: 500,
-            })}
+            className={({ isActive }) =>
+              `text-sm font-semibold uppercase tracking-wider transition-colors ${
+                isActive ? 'text-white' : 'text-neutral-400 hover:text-white'
+              }`
+            }
           >
             Inicio
           </NavLink>
 
           <NavLink
             to="/catalog"
-            style={({ isActive }) => ({
-              textDecoration: isActive ? 'underline' : 'none',
-              color: '#333',
-              fontWeight: 500,
-            })}
+            className={({ isActive }) =>
+              `text-sm font-semibold uppercase tracking-wider transition-colors ${
+                isActive ? 'text-white' : 'text-neutral-400 hover:text-white'
+              }`
+            }
           >
             Catálogo
           </NavLink>
 
           <Link
-            to="/quote"
-            style={{
-              backgroundColor: '#FFD700',
-              color: '#0a2a5e',
-              padding: '0.5rem 1rem',
-              borderRadius: 6,
-              fontWeight: 600,
-              textDecoration: 'none',
-            }}
+            to="/ubicacion" // Adaptado a la temática del negocio (Puntos de entrega/Ubicación)
+            className="bg-white text-black px-6 py-2.5 rounded-full font-bold text-sm uppercase tracking-wider hover:bg-neutral-200 transition-colors transform hover:scale-105 active:scale-95"
           >
-            Cotizar
+            Visítanos
           </Link>
         </nav>
       </header>
 
-      {/* Desvanecido inferior */}
-      <div
-  style={{
-    height: '10px',
-    background:
-      'linear-gradient(to bottom, rgba(255,255,255,0.25), rgba(255,255,255,0))',
-    pointerEvents: 'none',
-  }}
-/>
+      {/* Desvanecido inferior (Gradiente oscuro) */}
+      <div className="h-4 bg-gradient-to-b from-[#111111]/40 to-transparent pointer-events-none" />
     </div>
   );
 };
