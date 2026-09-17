@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react'; 
-
+import logo from '../images/logo.png'; // Asegúrate de que la ruta sea correcta 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -20,7 +20,7 @@ const Header: React.FC = () => {
         
         <Link to="/" className="flex items-center gap-4" onClick={closeMenu}>
           <img 
-            src="/images/logo.png" 
+            src={logo}
             alt="Fortress Logo" 
             className="w-[42px] h-[42px] object-contain"
           />
