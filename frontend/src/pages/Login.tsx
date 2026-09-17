@@ -45,7 +45,8 @@ export default function Login() {
   };
 
   return (
-    <section style={styles.container}>
+    // Añadimos el padding-top necesario y forzamos el color oscuro de fondo para toda la pantalla
+    <section className="w-screen m-0 min-h-screen bg-[#111111] overflow-x-hidden flex justify-center items-center px-4 pt-32 pb-16">
       <div style={styles.card}>
         <div style={styles.accentLine}></div>
 
@@ -88,55 +89,59 @@ export default function Login() {
 }
 
 const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    minHeight: "70vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: "2rem",
-  },
   card: {
     width: "100%",
     maxWidth: "500px",
-    background: "#ffffff",
+    background: "#1a1a1a", // Fondo de la tarjeta oscuro
     borderRadius: "16px",
-    padding: "2.5rem",
-    boxShadow: "0 10px 25px -5px rgba(0,0,0,0.08)",
+    padding: "clamp(1.5rem, 4vw, 2.5rem)", // Padding responsivo
+    boxShadow: "0 10px 25px -5px rgba(0,0,0,0.5)", // Sombra adaptada a tema oscuro
+    border: "1px solid #333", // Borde sutil
   },
   accentLine: {
     width: "60px",
     height: "4px",
-    background: "#FFD700",
-    borderRadius: "999px",
+    background: "#ffffff", // Línea blanca
     marginBottom: "1.5rem",
   },
   title: {
-    color: "#0a2a5e",
-    fontSize: "2rem",
-    fontWeight: 800,
-    marginBottom: "1rem",
+    fontFamily: '"Anton", sans-serif',
+    color: "#ffffff",
+    fontSize: "2.5rem",
+    marginBottom: "0.5rem",
+    textTransform: "uppercase",
+    letterSpacing: "1px",
+    lineHeight: 1.1,
   },
   subtitle: {
-    color: "#6b7280",
+    color: "#888",
     marginBottom: "2rem",
+    fontSize: "0.95rem",
   },
   input: {
     width: "100%",
     padding: "14px",
     marginBottom: "1rem",
-    border: "1px solid #d1d5db",
-    borderRadius: "10px",
+    border: "1px solid #444", // Borde de input más oscuro
+    borderRadius: "8px",
+    background: "#222", // Fondo del input oscuro
+    color: "#fff", // Texto blanco
     fontSize: "1rem",
     boxSizing: "border-box",
+    outline: "none",
   },
   button: {
     width: "100%",
     padding: "14px",
-    border: "none",
-    borderRadius: "10px",
-    background: "#0a2a5e",
-    color: "#fff",
-    fontWeight: 700,
+    border: "1px solid #fff", // Borde blanco (estilo streetwear)
+    borderRadius: "8px",
+    background: "#fff", // Botón blanco
+    color: "#000", // Texto negro
+    fontWeight: 800,
     cursor: "pointer",
+    textTransform: "uppercase",
+    letterSpacing: "1px",
+    marginTop: "0.5rem",
+    transition: "background 0.2s, color 0.2s",
   },
 };
