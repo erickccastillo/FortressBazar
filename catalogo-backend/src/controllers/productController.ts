@@ -1,16 +1,17 @@
 import { Request, Response } from 'express';
 import { supabase } from '../config/supabase';
 
-// Función para obtener productos (Catálogo)
+// Función para obtener prendas (Catálogo)
 export const getProducts = async (req: Request, res: Response) => {
   try {
-    console.log('GET /api/products', req.query);
+    console.log('GET /api/clothes', req.query);
 
     const search = req.query.search as string;
     const category = req.query.category as string;
 
+    // CAMBIO: Apuntar a la tabla 'clothes'
     let query = supabase
-      .from('products')
+      .from('clothes')
       .select('*');
 
     // Buscar por nombre
@@ -19,10 +20,7 @@ export const getProducts = async (req: Request, res: Response) => {
     }
 
     // Filtrar por categoría
-    if (
-      category &&
-      category !== 'TODOS'
-    ) {
+    if (category && category !== 'TODOS') {
       query = query.eq('category', category);
     }
 
@@ -36,80 +34,72 @@ export const getProducts = async (req: Request, res: Response) => {
       throw error;
     }
 
-    console.log(
-      `Productos encontrados: ${data?.length || 0}`
-    );
+    console.log(`Prendas encontradas: ${data?.length || 0}`);
 
     return res.status(200).json({
-      products: data || [],
+      products: data || [], // Mantenemos la llave "products" para no romper tu frontend
       totalProducts: data?.length || 0,
       totalPages: 1,
     });
 
   } catch (error: any) {
-    console.error('GET PRODUCTS ERROR:', error);
+    console.error('GET CLOTHES ERROR:', error);
 
     return res.status(500).json({
-      error: 'Error al obtener productos',
+      error: 'Error al obtener las prendas',
       details: error?.message || error
     });
   }
 };
 
-// Función para crear productos (Panel de Administrador)
-export const createProduct = async (
-  req: Request,
-  res: Response
-) => {
+// Función para crear prendas (Panel de Administrador)
+export const createProduct = async (req: Request, res: Response) => {
   try {
     const {
       name,
       description,
       price,
       category,
-      image_url,
+      size,         // Nuevo campo
       color,
-      material,
-      medidas
+      image_urls    // Cambiado de image_url a image_urls
     } = req.body;
 
+    // CAMBIO: Insertar en la tabla 'clothes'
     const { data, error } = await supabase
-      .from('products')
+      .from('clothes')
       .insert([
         {
           name,
           description,
           price,
           category,
-          image_url,
+          size,
           color,
-          material,
-          medidas
+          image_urls
         }
       ])
       .select();
 
     if (error) {
-      console.error('CREATE PRODUCT ERROR:', error);
+      console.error('CREATE CLOTHES ERROR:', error);
       throw error;
     }
 
     return res.status(201).json(data);
 
   } catch (error: any) {
-    console.error('CREATE PRODUCT ERROR:', error);
+    console.error('CREATE CLOTHES ERROR:', error);
 
     return res.status(500).json({
-      error: 'Error al crear producto',
+      error: 'Error al crear la prenda',
       details: error?.message || error
     });
   }
 };
 
-export const updateProduct = async (
-  req: Request,
-  res: Response
-) => {
+// Función para actualizar prendas
+export const updateProduct = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   const {
@@ -117,43 +107,42 @@ export const updateProduct = async (
     description,
     price,
     category,
-    image_url,
+    size,         // Nuevo campo
     color,
-    material,
-    medidas
+    image_urls    // Cambiado a image_urls
   } = req.body;
 
   try {
+    // CAMBIO: Actualizar en la tabla 'clothes'
     const { data, error } = await supabase
-      .from('products')
+      .from('clothes')
       .update({
         name,
         description,
         price,
         category,
-        image_url,
+        size,
         color,
-        material,
-        medidas
+        image_urls
       })
       .eq('id', id)
       .select();
 
     if (error) {
-      console.error('UPDATE PRODUCT ERROR:', error);
+      console.error('UPDATE CLOTHES ERROR:', error);
       throw error;
     }
 
     return res.status(200).json({
-      message: 'Producto actualizado con éxito',
+      message: 'Prenda actualizada con éxito',
       product: data?.[0]
     });
 
   } catch (error: any) {
-    console.error('UPDATE PRODUCT ERROR:', error);
+    console.error('UPDATE CLOTHES ERROR:', error);
 
     return res.status(500).json({
-      error: error?.message || 'Error al actualizar producto'
+      error: error?.message || 'Error al actualizar la prenda'
     });
   }
 };

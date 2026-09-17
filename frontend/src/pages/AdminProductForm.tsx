@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import './AdminProductForm.css'; // <-- Mantenemos tus estilos
+import './AdminProductForm.css'; 
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -9,36 +9,35 @@ const supabase = createClient(
 );
 
 const AdminProductForm: React.FC = () => {
-  
-  // 1. Herramientas para editar y navegar
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditing = Boolean(id);
 
-  // Estados del formulario
+  // Estados del formulario enfocados en Ropa
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState<number | ''>('');
+  const [category, setCategory] = useState('CAMISA');
+  const [size, setSize] = useState('M'); // L, M, S
   const [color, setColor] = useState('');
-  const [material, setMaterial] = useState('');
-  const [medidas, setMedidas] = useState('');
-  const [category, setCategory] = useState('PISOS');
   
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
+  // Manejo de múltiples imágenes
+  const [files, setFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
+  
   const [uploading, setUploading] = useState(false);
   const [loadingData, setLoadingData] = useState(isEditing);
 
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
-  // 2. EFECTO: Si estamos editando, traemos los datos de Supabase para llenar el formulario
+  // Cargar datos si estamos editando
   useEffect(() => {
     if (isEditing) {
       const fetchProduct = async () => {
         try {
           const { data, error } = await supabase
-            .from('products')
+            .from('clothes') // CAMBIO: Ahora apuntamos a la tabla 'clothes'
             .select('*')
             .eq('id', id)
             .single();
@@ -50,15 +49,17 @@ const AdminProductForm: React.FC = () => {
             setDescription(data.description || '');
             setPrice(data.price);
             setCategory(data.category);
+            setSize(data.size || 'M');
             setColor(data.color || '');
-            setMaterial(data.material || '');
-            setMedidas(data.medidas || '');
-            setPreview(data.image_url);
-            setExistingImageUrl(data.image_url);
+            
+            // Cargar imágenes existentes
+            const urls = data.image_urls || [];
+            setExistingImageUrls(urls);
+            setPreviews(urls);
           }
         } catch (error) {
-          console.error("Error al cargar producto:", error);
-          alert("No se pudo cargar la información del producto.");
+          console.error("Error al cargar prenda:", error);
+          alert("No se pudo cargar la información de la prenda.");
         } finally {
           setLoadingData(false);
         }
@@ -67,58 +68,80 @@ const AdminProductForm: React.FC = () => {
     }
   }, [id, isEditing]);
 
+  // Manejar múltiples archivos
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const selectedFile = e.target.files[0];
-      setFile(selectedFile);
-      setPreview(URL.createObjectURL(selectedFile));
+      const selectedFiles = Array.from(e.target.files);
+      setFiles((prev) => [...prev, ...selectedFiles]);
+      
+      // Crear previews para los archivos nuevos
+      const newPreviews = selectedFiles.map(file => URL.createObjectURL(file));
+      setPreviews((prev) => [...prev, ...newPreviews]);
     }
+  };
+
+  // Remover una imagen (tanto de las nuevas seleccionadas como de las existentes)
+  const removeImage = (indexToRemove: number) => {
+    // Si el índice es menor a la cantidad de imágenes existentes, la removemos de las existentes
+    if (indexToRemove < existingImageUrls.length) {
+      setExistingImageUrls(prev => prev.filter((_, i) => i !== indexToRemove));
+    } else {
+      // Si es una imagen nueva, la removemos de los archivos pendientes a subir
+      const fileIndex = indexToRemove - existingImageUrls.length;
+      setFiles(prev => prev.filter((_, i) => i !== fileIndex));
+    }
+    // Siempre actualizamos los previews visuales
+    setPreviews(prev => prev.filter((_, i) => i !== indexToRemove));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // 3. CAMBIO: Ya no exigimos la imagen. Solo nombre y precio.
-    if (!description) return alert('La descripcion es obligatoria.');
+    if (!description) return alert('La descripción es obligatoria.');
 
     setUploading(true);
     try {
-      // 4. CAMBIO: Si no hay imagen nueva ni antigua, usamos una gris por defecto
-      let finalImageUrl = existingImageUrl || 'https://placehold.co/600x400/eeeeee/999999?text=Sin+Imagen';
+      let finalImageUrls = [...existingImageUrls];
 
-      // Solo si el usuario seleccionó un archivo nuevo, lo subimos
-      if (file) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.random()}.${fileExt}`;
-        const filePath = `catalog/${fileName}`;
+      // Subir cada archivo nuevo a Supabase Storage
+      if (files.length > 0) {
+        for (const file of files) {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Date.now()}-${Math.random()}.${fileExt}`;
+          const filePath = `clothes/${fileName}`; // Carpeta recomendada: clothes
 
-        const { error: uploadError } = await supabase.storage
-          .from('products')
-          .upload(filePath, file);
+          const { error: uploadError } = await supabase.storage
+            .from('products') // Puedes usar el mismo bucket o crear uno 'clothes'
+            .upload(filePath, file);
 
-        if (uploadError) throw uploadError;
+          if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('products')
-          .getPublicUrl(filePath);
-          
-        finalImageUrl = publicUrl; // Usamos la URL de la imagen recién subida
+          const { data: { publicUrl } } = supabase.storage
+            .from('products')
+            .getPublicUrl(filePath);
+            
+          finalImageUrls.push(publicUrl);
+        }
       }
 
-    const productData = {
+      // Si no hay ninguna imagen, ponemos una por defecto
+      if (finalImageUrls.length === 0) {
+        finalImageUrls = ['[https://placehold.co/600x800/222222/cccccc?text=Sin+Foto](https://placehold.co/600x800/222222/cccccc?text=Sin+Foto)'];
+      }
+
+      const productData = {
         name,
         description,
         price: Number(price),
         category,
-        image_url: finalImageUrl,
+        size,
         color,
-        material,
-        medidas,
+        image_urls: finalImageUrls, // Array de URLs
       };
 
-      // 5. Decidimos si creamos (POST) o actualizamos (PUT)
+      // Decidimos si creamos (POST) o actualizamos (PUT)
+      // Asegúrate de que el backend ahora apunte a /api/clothes
       const method = isEditing ? 'PUT' : 'POST';
-      const url = isEditing ? `${apiUrl}/api/products/${id}` : `${apiUrl}/api/products`;
+      const url = isEditing ? `${apiUrl}/api/clothes/${id}` : `${apiUrl}/api/clothes`;
 
       const response = await fetch(url, {
         method,
@@ -126,64 +149,51 @@ const AdminProductForm: React.FC = () => {
         body: JSON.stringify(productData),
       });
 
-      if (!response.ok) throw new Error('Error en el servidor');
+      if (!response.ok) throw new Error('Error en el servidor al guardar.');
 
-      alert(isEditing ? '✨ ¡Producto actualizado!' : '✨ ¡Producto publicado con éxito!');
-      
-      // Al terminar, lo regresamos al panel principal
+      alert(isEditing ? '✨ ¡Prenda actualizada!' : '✨ ¡Prenda publicada con éxito!');
       navigate('/admin');
 
     } catch (error) {
       console.error('Error al guardar:', error);
-      alert('Hubo un error al guardar el producto. Intenta de nuevo.');
+      alert('Hubo un error al guardar la prenda. Intenta de nuevo.');
     } finally {
       setUploading(false);
     }
   };
 
   if (loadingData) {
-    return <div style={{textAlign: 'center', marginTop: '5rem', fontSize: '1.2rem', color: '#0a2a5e'}}>Cargando información del producto...</div>;
+    return <div style={{textAlign: 'center', marginTop: '5rem', color: '#fff'}}>Cargando información...</div>;
   }
 
   return (
-    <div className="admin-container">
+    <div className="admin-container" style={{ background: '#111', minHeight: '100vh', color: '#eee', padding: '2rem' }}>
       
-      <div className="admin-card">
-        <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '1.5rem',
-        }}
-      >
-        <Link
-          to="/admin"
-          style={{
-            backgroundColor: '#0a2a5e',
-            color: 'white',
-            padding: '0.5rem 1rem',
-            borderRadius: '8px',
-            textDecoration: 'none',
-            fontWeight: 'bold',
-          }}
-        >
-          ← Dashboard
-        </Link>
-      </div>
-        <h2 className="admin-title">{isEditing ? 'Editar Producto' : 'Panel de Control'}</h2>
-        <p className="admin-subtitle">
-          {isEditing ? 'Modifica los detalles del producto' : 'Agrega un nuevo producto al catálogo de Revestimento'}
+      <div className="admin-card" style={{ background: '#1a1a1a', padding: '2rem', borderRadius: '1rem', border: '1px solid #333', maxWidth: '800px', margin: '0 auto' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <Link
+            to="/admin"
+            style={{ backgroundColor: '#fff', color: '#000', padding: '0.5rem 1rem', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}
+          >
+            ← Dashboard
+          </Link>
+        </div>
+        
+        <h2 style={{ fontFamily: 'Anton', fontSize: '2.5rem', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+          {isEditing ? 'Editar Prenda' : 'Nueva Prenda'}
+        </h2>
+        <p style={{ color: '#aaa', marginBottom: '2rem' }}>
+          {isEditing ? 'Modifica los detalles de esta prenda' : 'Agrega una nueva prenda al catálogo de Fortress Bazar'}
         </p>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           
           <div className="form-group">
-            <label>Nombre del Producto</label>
+            <label style={{ fontWeight: 'bold', marginBottom: '0.5rem', display: 'block' }}>Nombre de la Prenda</label>
             <input 
               type="text" 
-              className="custom-input"
-              placeholder="Ej. Piso Cerámico tipo Madera"
+              style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#222', border: '1px solid #444', color: '#fff' }}
+              placeholder="Ej. Chamarra Vintage Levi's"
               value={name} 
               onChange={(e) => setName(e.target.value)} 
               required 
@@ -191,22 +201,22 @@ const AdminProductForm: React.FC = () => {
           </div>
 
           <div className="form-group">
-            <label>Descripción</label>
+            <label style={{ fontWeight: 'bold', marginBottom: '0.5rem', display: 'block' }}>Descripción</label>
             <textarea 
-              className="custom-input"
-              placeholder="Breve descripción del material, textura o uso..."
-              rows={10}
+              style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#222', border: '1px solid #444', color: '#fff' }}
+              placeholder="Condición de la prenda, detalles de tela..."
+              rows={4}
               value={description} 
               onChange={(e) => setDescription(e.target.value)} 
             />
           </div>
 
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <div className="form-group" style={{ flex: 1 }}>
-              <label>Precio ($)</label>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <div className="form-group" style={{ flex: '1 1 200px' }}>
+              <label style={{ fontWeight: 'bold', marginBottom: '0.5rem', display: 'block' }}>Precio ($)</label>
               <input 
                 type="number" 
-                className="custom-input"
+                style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#222', border: '1px solid #444', color: '#fff' }}
                 placeholder="0.00"
                 value={price} 
                 onChange={(e) => setPrice(Number(e.target.value))} 
@@ -214,87 +224,96 @@ const AdminProductForm: React.FC = () => {
               />
             </div>
 
-            <div className="form-group" style={{ flex: 1 }}>
-              <label>Categoría</label>
+            <div className="form-group" style={{ flex: '1 1 200px' }}>
+              <label style={{ fontWeight: 'bold', marginBottom: '0.5rem', display: 'block' }}>Categoría</label>
               <select 
-                className="custom-input"
+                style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#222', border: '1px solid #444', color: '#fff' }}
                 value={category} 
                 onChange={(e) => setCategory(e.target.value)}
               >
-                <option value="PISOS">Pisos</option>
-                <option value="AZULEJOS">Azulejos</option>
-                <option value="DECORATIVOS">Decorativos</option>
-                <option value="MONOMANDOS">Monomandos</option>
-                <option value="MEZCLADORAS">Mezcladoras</option>
-                <option value="MUROS">Muros</option>
-                <option value="LAVABOS">Lavabos</option>
+                <option value="CAMISA">Camisa</option>
+                <option value="CHAMARRA">Chamarra</option>
+                <option value="PANTALON">Pantalón</option>
+                <option value="PLAYERA">Playera</option>
+                <option value="ACCESORIO">Accesorio</option>
               </select>
             </div>
           </div>
 
-          <div className="form-group">
-          <label>Color</label>
-          <input
-            type="text"
-            className="custom-input"
-            placeholder="Ej. Beige, Gris, Nogal"
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
-          />
-        </div>
-        
-        <div className="form-group">
-          <label>Material</label>
-          <input
-            type="text"
-            className="custom-input"
-            placeholder="Ej. Cerámica, Porcelanato, Madera"
-            value={material}
-            onChange={(e) => setMaterial(e.target.value)}
-          />
-        </div>
-        
-        <div className="form-group">
-          <label>Medidas</label>
-          <input
-            type="text"
-            className="custom-input"
-            placeholder="Ej. 60x60 cm"
-            value={medidas}
-            onChange={(e) => setMedidas(e.target.value)}
-          />
-        </div>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <div className="form-group" style={{ flex: '1 1 200px' }}>
+              <label style={{ fontWeight: 'bold', marginBottom: '0.5rem', display: 'block' }}>Talla / Medida</label>
+              <select 
+                style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#222', border: '1px solid #444', color: '#fff' }}
+                value={size} 
+                onChange={(e) => setSize(e.target.value)}
+              >
+                <option value="S">S (Chica)</option>
+                <option value="M">M (Mediana)</option>
+                <option value="L">L (Grande)</option>
+                <option value="XL">XL (Extra Grande)</option>
+                <option value="UNITALLA">Unitalla</option>
+              </select>
+            </div>
+
+            <div className="form-group" style={{ flex: '1 1 200px' }}>
+              <label style={{ fontWeight: 'bold', marginBottom: '0.5rem', display: 'block' }}>Color</label>
+              <input
+                type="text"
+                style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#222', border: '1px solid #444', color: '#fff' }}
+                placeholder="Ej. Negro Deslavado, Azul Rey"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+              />
+            </div>
+          </div>
 
           <div className="form-group">
-            {/* Cambiamos el texto para que sepa que es opcional */}
-            <label>{isEditing ? 'Cambiar Fotografía (Opcional)' : 'Fotografía del Producto (Opcional)'}</label>
-            <div className="file-drop-area">
-              <span style={{ color: '#0a2a5e', fontWeight: 600 }}>
-                {file ? file.name : 'Haz clic o arrastra una imagen aquí'}
+            <label style={{ fontWeight: 'bold', marginBottom: '0.5rem', display: 'block' }}>
+              Fotografías (Puedes seleccionar varias)
+            </label>
+            <div style={{ border: '2px dashed #444', padding: '2rem', textAlign: 'center', borderRadius: '8px', position: 'relative' }}>
+              <span style={{ color: '#aaa' }}>
+                Haz clic para subir imágenes
               </span>
               <input 
                 type="file" 
-                className="file-input-hidden"
+                multiple
                 accept="image/*" 
                 onChange={handleFileChange} 
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
               />
             </div>
             
-            {/* Si hay una imagen seleccionada o ya existía una, la mostramos */}
-            {preview && (
-              <img src={preview} alt="Vista previa" className="image-preview" />
+            {/* Galería de vistas previas */}
+            {previews.length > 0 && (
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+                {previews.map((src, index) => (
+                  <div key={index} style={{ position: 'relative', flexShrink: 0 }}>
+                    <img 
+                      src={src} 
+                      alt={`Vista previa ${index}`} 
+                      style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #555' }} 
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      style={{ position: 'absolute', top: -5, right: -5, background: 'red', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
           
-          <button type="submit" className="btn-submit" disabled={uploading}>
-            {uploading ? (
-              <>
-                <div className="spinner"></div>
-                Guardando en la nube...
-              </>
-            ) : (
-              isEditing ? 'Actualizar Producto' : 'Guardar Producto'
-            )}
+          <button 
+            type="submit" 
+            disabled={uploading}
+            style={{ padding: '1rem', background: '#fff', color: '#000', fontWeight: 'bold', borderRadius: '8px', border: 'none', cursor: uploading ? 'not-allowed' : 'pointer', marginTop: '1rem', textTransform: 'uppercase' }}
+          >
+            {uploading ? 'Guardando...' : (isEditing ? 'Actualizar Prenda' : 'Guardar Prenda')}
           </button>
 
         </form>
