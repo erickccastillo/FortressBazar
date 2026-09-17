@@ -57,7 +57,6 @@ export default function BazarHome() {
 
     const baseTransition = 'transform 650ms cubic-bezier(0.4,0,0.2,1), filter 650ms cubic-bezier(0.4,0,0.2,1), opacity 650ms cubic-bezier(0.4,0,0.2,1), left 650ms cubic-bezier(0.4,0,0.2,1), bottom 650ms cubic-bezier(0.4,0,0.2,1), height 650ms cubic-bezier(0.4,0,0.2,1)';
 
-    // Ajustes de proporciones responsivas para el carrusel principal
     const getScale = (roleName: string) => {
       if (roleName === 'center') return isMobile ? 1.3 : isTablet ? 1.5 : 1.68;
       return 1;
@@ -161,14 +160,14 @@ export default function BazarHome() {
 
           {/* Gran Título de Fondo */}
           <div 
-            className="absolute inset-x-0 flex items-center justify-center pointer-events-none select-none z-10 text-white uppercase whitespace-nowrap opacity-90"
+            className="absolute inset-x-0 flex items-center justify-center pointer-events-none select-none z-10 text-white/40 uppercase whitespace-nowrap opacity-60"
             style={{ 
               top: isMobile ? '12%' : '18%', 
               fontFamily: "'Anton', sans-serif",
-              fontSize: 'clamp(70px, 25vw, 380px)',
+              fontSize: 'clamp(50px, 15vw, 250px)', // Reducido el tamaño de la fuente de 380px a 250px
               lineHeight: 1,
-              letterSpacing: '-0.02em',
-              textShadow: '0 20px 40px rgba(0,0,0,0.5)'
+              letterSpacing: '0.05em', // Cambiado el letter-spacing para que no estén tan juntas las letras
+              textShadow: '0 10px 20px rgba(0,0,0,0.3)' // Sombra más sutil
             }}
           >
             FORTRESS
