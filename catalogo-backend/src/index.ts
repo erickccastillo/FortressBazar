@@ -16,11 +16,12 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.status(200).json({
     status: 'ok',
-    message: 'Backend funcionando'
+    message: 'Backend Fortress Bazar funcionando'
   });
 });
 
-app.use('/api/products', productRoutes);
+// CAMBIO AQUI: La ruta base ahora es /api/clothes
+app.use('/api/clothes', productRoutes);
 app.use('/auth', authRoutes);
 
 // Capturar errores globales
