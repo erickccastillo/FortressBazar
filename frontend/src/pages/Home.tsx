@@ -6,9 +6,7 @@ import bananaRepublicImg from '../images/bananarepublic.png';
 import quicksilverImg from '../images/quicksilver.png';
 import hurleyImg from '../images/hurley.png';
 
-
 const IMAGES = [
-  // 2. USAMOS LAS VARIABLES IMPORTADAS EN LUGAR DE TEXTO
   { src: perryEllisImg, bg: '#1E293B', panel: '#334155' },
   { src: bananaRepublicImg, bg: '#3F2E3E', panel: '#5c435a' },
   { src: quicksilverImg, bg: '#2A3B32', panel: '#3f574a' },
@@ -61,78 +59,86 @@ export default function BazarHome() {
     else if (index === (activeIndex + 1) % 4) role = 'right';
     else if (index === (activeIndex + 2) % 4) role = 'back';
 
-    const baseTransition = 'transform 650ms cubic-bezier(0.4,0,0.2,1), filter 650ms cubic-bezier(0.4,0,0.2,1), opacity 650ms cubic-bezier(0.4,0,0.2,1), left 650ms cubic-bezier(0.4,0,0.2,1), bottom 650ms cubic-bezier(0.4,0,0.2,1), height 650ms cubic-bezier(0.4,0,0.2,1)';
+    const baseTransition = 'transform 650ms cubic-bezier(0.4,0,0.2,1), filter 650ms cubic-bezier(0.4,0,0.2,1), opacity 650ms cubic-bezier(0.4,0,0.2,1), left 650ms cubic-bezier(0.4,0,0.2,1), bottom 650ms cubic-bezier(0.4,0,0.2,1), height 650ms cubic-bezier(0.4,0,0.2,1), width 650ms cubic-bezier(0.4,0,0.2,1)';
 
-    const getScale = (roleName: string) => {
-      if (roleName === 'center') return isMobile ? 1.3 : isTablet ? 1.5 : 1.68;
-      return 1;
+    // MODIFICADO: Ahora controlamos el ancho en lugar de usar aspect-ratio para las imágenes PNG (logos)
+    const getWidth = (roleName: string) => {
+      if (roleName === 'center') return isMobile ? '80%' : isTablet ? '60%' : '50%';
+      if (roleName === 'back') return isMobile ? '30%' : '20%';
+      return isMobile ? '25%' : '20%'; // left, right
     };
 
+    // MODIFICADO: Ajustamos la altura para que no se estiren
     const getHeight = (roleName: string) => {
-      if (roleName === 'center') return isMobile ? '55%' : '92%';
-      if (roleName === 'back') return isMobile ? '15%' : '22%';
-      return isMobile ? '18%' : '28%';
+      if (roleName === 'center') return isMobile ? '40%' : '50%';
+      if (roleName === 'back') return isMobile ? '15%' : '20%';
+      return isMobile ? '12%' : '18%'; // left, right
     };
 
     const getBottom = (roleName: string) => {
-      if (roleName === 'center') return isMobile ? '30%' : '0';
-      return isMobile ? '40%' : '12%';
+      if (roleName === 'center') return isMobile ? '30%' : '15%'; // Bajamos un poco la central en escritorio
+      if (roleName === 'back') return isMobile ? '40%' : '18%';
+      return isMobile ? '40%' : '18%';
     };
 
     const getLeft = (roleName: string) => {
       if (roleName === 'center' || roleName === 'back') return '50%';
-      if (roleName === 'left') return isMobile ? '15%' : '30%';
-      return isMobile ? '85%' : '70%'; // right
+      if (roleName === 'left') return isMobile ? '15%' : '20%';
+      return isMobile ? '85%' : '80%'; // right
     };
 
     switch (role) {
       case 'center':
         return {
-          transform: `translateX(-50%) scale(${getScale('center')})`,
+          transform: `translateX(-50%)`, // Quitamos el scale para evitar recortes
           filter: 'blur(0px)',
           opacity: 1,
           zIndex: 20,
           left: getLeft('center'),
+          width: getWidth('center'),
           height: getHeight('center'),
           bottom: getBottom('center'),
           transition: baseTransition,
-          willChange: 'transform, filter, opacity',
+          willChange: 'transform, filter, opacity, width, height',
         };
       case 'left':
         return {
-          transform: `translateX(-50%) scale(${getScale('left')})`,
-          filter: 'blur(2px)',
-          opacity: 0.85,
+          transform: `translateX(-50%)`,
+          filter: 'blur(4px)', // Aumentamos un poco el blur de las laterales
+          opacity: 0.6, // Reducimos opacidad para que no resalten tanto
           zIndex: 10,
           left: getLeft('left'),
+          width: getWidth('left'),
           height: getHeight('left'),
           bottom: getBottom('left'),
           transition: baseTransition,
-          willChange: 'transform, filter, opacity',
+          willChange: 'transform, filter, opacity, width, height',
         };
       case 'right':
         return {
-          transform: `translateX(-50%) scale(${getScale('right')})`,
-          filter: 'blur(2px)',
-          opacity: 0.85,
+          transform: `translateX(-50%)`,
+          filter: 'blur(4px)',
+          opacity: 0.6,
           zIndex: 10,
           left: getLeft('right'),
+          width: getWidth('right'),
           height: getHeight('right'),
           bottom: getBottom('right'),
           transition: baseTransition,
-          willChange: 'transform, filter, opacity',
+          willChange: 'transform, filter, opacity, width, height',
         };
       case 'back':
         return {
-          transform: `translateX(-50%) scale(${getScale('back')})`,
-          filter: 'blur(4px)',
-          opacity: 1,
+          transform: `translateX(-50%)`,
+          filter: 'blur(8px)', // Más blur atrás
+          opacity: 0.3,
           zIndex: 5,
           left: getLeft('back'),
+          width: getWidth('back'),
           height: getHeight('back'),
           bottom: getBottom('back'),
           transition: baseTransition,
-          willChange: 'transform, filter, opacity',
+          willChange: 'transform, filter, opacity, width, height',
         };
       default:
         return {};
@@ -170,10 +176,10 @@ export default function BazarHome() {
             style={{ 
               top: isMobile ? '12%' : '18%', 
               fontFamily: "'Anton', sans-serif",
-              fontSize: 'clamp(50px, 15vw, 250px)', // Reducido el tamaño de la fuente de 380px a 250px
+              fontSize: 'clamp(50px, 15vw, 250px)',
               lineHeight: 1,
-              letterSpacing: '0.05em', // Cambiado el letter-spacing para que no estén tan juntas las letras
-              textShadow: '0 10px 20px rgba(0,0,0,0.3)' // Sombra más sutil
+              letterSpacing: '0.05em',
+              textShadow: '0 10px 20px rgba(0,0,0,0.3)'
             }}
           >
             FORTRESS
@@ -184,18 +190,23 @@ export default function BazarHome() {
           </div>
 
           {/* Carrusel */}
-          <div className="absolute inset-0 z-30">
+          <div className="absolute inset-0 z-30 flex items-center justify-center">
             {IMAGES.map((img, index) => (
               <div 
                 key={index} 
-                className="absolute aspect-[0.6/1]"
+                className="absolute flex items-center justify-center"
                 style={getItemStyle(index)}
               >
+                {/* 
+                  MODIFICADO: 
+                  - Eliminado el background, borde y sombra (bg-black/20, border, shadow-2xl, p-4) 
+                  - Mantenemos object-contain pero le damos drop-shadow para que resalte
+                */}
                 <img 
                   src={img.src} 
-                  alt={`Prenda Fortress ${index + 1}`} 
+                  alt={`Logo Marca ${index + 1}`} 
                   draggable={false}
-                  className="w-full h-full object-cover object-center rounded-xl md:rounded-2xl shadow-2xl select-none border border-white/20"
+                  className="w-full h-full object-contain select-none drop-shadow-[0_10px_15px_rgba(0,0,0,0.6)]"
                 />
               </div>
             ))}
