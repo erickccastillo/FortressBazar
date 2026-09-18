@@ -3,10 +3,10 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import './Home.css';
 
 const IMAGES = [
-  { src: '../images/ropa-1.jpg', bg: '#1E293B', panel: '#334155' },
-  { src: '../images/ropa-2.jpg', bg: '#3F2E3E', panel: '#5c435a' },
-  { src: '../images/ropa-3.jpg', bg: '#2A3B32', panel: '#3f574a' },
-  { src: '../images/ropa-4.jpg', bg: '#27272A', panel: '#3f3f46' },
+  { src: '../images/perryellis.png', bg: '#1E293B', panel: '#334155' },
+  { src: '../images/bananarepublic.png', bg: '#3F2E3E', panel: '#5c435a' },
+  { src: '../images/quicksilver.png', bg: '#2A3B32', panel: '#3f574a' },
+  { src: '../images/hurley.png', bg: '#27272A', panel: '#3f3f46' },
 ];
 
 const grainSvg = `data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E`;
