@@ -61,36 +61,36 @@ export default function BazarHome() {
 
     const baseTransition = 'transform 650ms cubic-bezier(0.4,0,0.2,1), filter 650ms cubic-bezier(0.4,0,0.2,1), opacity 650ms cubic-bezier(0.4,0,0.2,1), left 650ms cubic-bezier(0.4,0,0.2,1), bottom 650ms cubic-bezier(0.4,0,0.2,1), height 650ms cubic-bezier(0.4,0,0.2,1), width 650ms cubic-bezier(0.4,0,0.2,1)';
 
-    // MODIFICADO: Ahora controlamos el ancho en lugar de usar aspect-ratio para las imágenes PNG (logos)
     const getWidth = (roleName: string) => {
-      if (roleName === 'center') return isMobile ? '80%' : isTablet ? '60%' : '50%';
+      if (roleName === 'center') return isMobile ? '85%' : isTablet ? '60%' : '50%';
       if (roleName === 'back') return isMobile ? '30%' : '20%';
-      return isMobile ? '25%' : '20%'; // left, right
+      return isMobile ? '25%' : '20%'; 
     };
 
-    // MODIFICADO: Ajustamos la altura para que no se estiren
     const getHeight = (roleName: string) => {
-      if (roleName === 'center') return isMobile ? '40%' : '50%';
+      // MODIFICADO: En móvil hacemos el logo un poco más pequeño de alto para que no estorbe
+      if (roleName === 'center') return isMobile ? '35%' : '50%';
       if (roleName === 'back') return isMobile ? '15%' : '20%';
-      return isMobile ? '12%' : '18%'; // left, right
+      return isMobile ? '12%' : '18%'; 
     };
 
     const getBottom = (roleName: string) => {
-      if (roleName === 'center') return isMobile ? '30%' : '15%'; // Bajamos un poco la central en escritorio
-      if (roleName === 'back') return isMobile ? '40%' : '18%';
-      return isMobile ? '40%' : '18%';
+      // MODIFICADO: Subimos considerablemente las imágenes en móvil para dejar espacio al texto inferior
+      if (roleName === 'center') return isMobile ? '45%' : '15%'; 
+      if (roleName === 'back') return isMobile ? '50%' : '18%';
+      return isMobile ? '50%' : '18%';
     };
 
     const getLeft = (roleName: string) => {
       if (roleName === 'center' || roleName === 'back') return '50%';
       if (roleName === 'left') return isMobile ? '15%' : '20%';
-      return isMobile ? '85%' : '80%'; // right
+      return isMobile ? '85%' : '80%'; 
     };
 
     switch (role) {
       case 'center':
         return {
-          transform: `translateX(-50%)`, // Quitamos el scale para evitar recortes
+          transform: `translateX(-50%)`, 
           filter: 'blur(0px)',
           opacity: 1,
           zIndex: 20,
@@ -104,8 +104,8 @@ export default function BazarHome() {
       case 'left':
         return {
           transform: `translateX(-50%)`,
-          filter: 'blur(4px)', // Aumentamos un poco el blur de las laterales
-          opacity: 0.6, // Reducimos opacidad para que no resalten tanto
+          filter: 'blur(4px)', 
+          opacity: 0.6, 
           zIndex: 10,
           left: getLeft('left'),
           width: getWidth('left'),
@@ -130,7 +130,7 @@ export default function BazarHome() {
       case 'back':
         return {
           transform: `translateX(-50%)`,
-          filter: 'blur(8px)', // Más blur atrás
+          filter: 'blur(8px)', 
           opacity: 0.3,
           zIndex: 5,
           left: getLeft('back'),
@@ -174,7 +174,8 @@ export default function BazarHome() {
           <div 
             className="absolute inset-x-0 flex items-center justify-center pointer-events-none select-none z-10 text-white/40 uppercase whitespace-nowrap opacity-60"
             style={{ 
-              top: isMobile ? '12%' : '18%', 
+              // MODIFICADO: Lo bajamos un poquito más en móvil para que no choque con el header ni el texto
+              top: isMobile ? '25%' : '18%', 
               fontFamily: "'Anton', sans-serif",
               fontSize: 'clamp(50px, 15vw, 250px)',
               lineHeight: 1,
@@ -185,7 +186,8 @@ export default function BazarHome() {
             FORTRESS
           </div>
 
-          <div className="absolute top-24 md:top-28 left-6 md:left-12 z-[60] text-[10px] md:text-xs font-semibold uppercase text-white/90 tracking-[0.2em]">
+          {/* Subtítulo Superior Izquierdo */}
+          <div className="absolute top-28 md:top-28 left-6 md:left-12 z-[60] text-[10px] md:text-xs font-semibold uppercase text-white/90 tracking-[0.2em]">
             FORTRESS BAZAR
           </div>
 
@@ -197,11 +199,6 @@ export default function BazarHome() {
                 className="absolute flex items-center justify-center"
                 style={getItemStyle(index)}
               >
-                {/* 
-                  MODIFICADO: 
-                  - Eliminado el background, borde y sombra (bg-black/20, border, shadow-2xl, p-4) 
-                  - Mantenemos object-contain pero le damos drop-shadow para que resalte
-                */}
                 <img 
                   src={img.src} 
                   alt={`Logo Marca ${index + 1}`} 
@@ -213,15 +210,16 @@ export default function BazarHome() {
           </div>
 
           {/* Textos y Controles Bottom Left */}
-          <div className="absolute bottom-10 left-6 md:bottom-20 md:left-24 z-[60] max-w-[280px] md:max-w-[320px]">
-            <p className="font-['Anton'] uppercase tracking-wide mb-3 md:mb-4 text-3xl md:text-5xl text-white drop-shadow-lg">
+          {/* MODIFICADO: En móvil usamos bottom-32 (más arriba) para que no choque con "Conócenos" */}
+          <div className="absolute bottom-32 left-6 md:bottom-20 md:left-24 z-[60] max-w-[280px] md:max-w-[320px]">
+            <p className="font-['Anton'] uppercase tracking-wide mb-3 md:mb-4 text-3xl md:text-5xl text-white drop-shadow-lg leading-tight">
               ROPA <br className="hidden md:block"/> AMERICANA
             </p>
             <p className="hidden md:block text-sm text-white/90 font-['Inter'] leading-relaxed mb-6 font-medium">
               Estilo auténtico y marcas originales a precios que no podrás creer. Seleccionamos cuidadosamente lo mejor de la moda americana para ti.
             </p>
             
-            <div className="flex gap-4">
+            <div className="flex gap-4 mt-2">
               <button 
                 onClick={() => navigate('prev')}
                 className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/20 backdrop-blur-sm border border-white/40 text-white flex items-center justify-center transition-all duration-200 hover:scale-105 hover:bg-white hover:text-black hover:border-white"
@@ -240,17 +238,18 @@ export default function BazarHome() {
           </div>
 
           {/* Enlace "Conócenos" Bottom Right */}
-          <div className="absolute bottom-10 right-6 md:bottom-20 md:right-16 z-[60]">
+          {/* MODIFICADO: En móvil usamos bottom-8 (hasta abajo) y lo alineamos a la derecha */}
+          <div className="absolute bottom-8 right-6 md:bottom-20 md:right-16 z-[60]">
             <a 
               href="#nosotros" 
-              className="flex items-center gap-3 text-white hover:text-gray-200 transition-colors uppercase no-underline cursor-pointer group"
+              className="flex items-center gap-2 md:gap-3 text-white hover:text-gray-200 transition-colors uppercase no-underline cursor-pointer group"
             >
-              <span className="font-['Anton'] text-2xl md:text-5xl tracking-wide drop-shadow-lg">
+              <span className="font-['Anton'] text-[1.3rem] md:text-5xl tracking-wide drop-shadow-lg">
                 CONÓCENOS
               </span>
               <ArrowRight 
-                className="w-8 h-8 md:w-12 md:h-12 transition-transform duration-300 group-hover:translate-x-3 drop-shadow-lg" 
-                strokeWidth={2} 
+                className="w-6 h-6 md:w-12 md:h-12 transition-transform duration-300 group-hover:translate-x-3 drop-shadow-lg" 
+                strokeWidth={2.5} 
               />
             </a>
           </div>
