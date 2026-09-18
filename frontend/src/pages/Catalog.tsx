@@ -246,7 +246,7 @@ const Catalog: React.FC = () => {
 
                 {/* NO OLVIDES CAMBIAR EL NÚMERO DE WHATSAPP AQUÍ */}
                 <a 
-                  href={`https://wa.me/523300000000?text=Hola,%20me%20interesa%20comprar%20la%20prenda:%20${encodeURIComponent(selectedProduct.name)}`} 
+                  href={`https://wa.me/523318474292?text=Hola,%20me%20interesa%20comprar%20la%20prenda:%20${encodeURIComponent(selectedProduct.name)}`} 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="bg-white text-black py-4 px-6 rounded-xl text-center font-extrabold transition-transform duration-200 hover:scale-[1.02] uppercase tracking-wider text-sm md:text-base shadow-lg"
