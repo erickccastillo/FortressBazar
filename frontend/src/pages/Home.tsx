@@ -1,12 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import './Home.css';
+import perryEllisImg from '../images/perryellis.png';
+import bananaRepublicImg from '../images/bananarepublic.png';
+import quicksilverImg from '../images/quicksilver.png';
+import hurleyImg from '../images/hurley.png';
+
 
 const IMAGES = [
-  { src: '../images/perryellis.png', bg: '#1E293B', panel: '#334155' },
-  { src: '../images/bananarepublic.png', bg: '#3F2E3E', panel: '#5c435a' },
-  { src: '../images/quicksilver.png', bg: '#2A3B32', panel: '#3f574a' },
-  { src: '../images/hurley.png', bg: '#27272A', panel: '#3f3f46' },
+  // 2. USAMOS LAS VARIABLES IMPORTADAS EN LUGAR DE TEXTO
+  { src: perryEllisImg, bg: '#1E293B', panel: '#334155' },
+  { src: bananaRepublicImg, bg: '#3F2E3E', panel: '#5c435a' },
+  { src: quicksilverImg, bg: '#2A3B32', panel: '#3f574a' },
+  { src: hurleyImg, bg: '#27272A', panel: '#3f3f46' },
 ];
 
 const grainSvg = `data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E`;
