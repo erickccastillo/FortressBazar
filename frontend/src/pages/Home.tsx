@@ -301,7 +301,7 @@ export default function BazarHome() {
                 <div>
                   <h4 className="text-xl font-bold text-white mb-3">Sucursales Casa Blanca</h4>
                   <p className="text-sm md:text-base text-neutral-400 font-medium leading-relaxed">
-                    Visítanos y recoge tus prendas favoritas directamente en nuestras sucursales físicas ubicadas en Casa Blanca. ¡Ven y descubre lo que acaba de llegar!
+                    Pide y recoge tus prendas favoritas directamente en las sucursales de Casa Blanca en la ZMG. ¡Navega y descubre lo que acaba de llegar!
                   </p>
                 </div>
               </li>
