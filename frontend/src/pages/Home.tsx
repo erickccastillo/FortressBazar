@@ -172,19 +172,20 @@ export default function BazarHome() {
 
           {/* Gran Título de Fondo */}
           <div 
-            className="absolute inset-x-0 flex items-center justify-center pointer-events-none select-none z-10 text-white/40 uppercase whitespace-nowrap opacity-80"
-            style={{ 
-              // MODIFICADO: Lo bajamos un poquito más en móvil para que no choque con el header ni el texto
-              top: isMobile ? '25%' : '18%', 
-              fontFamily: "'Anton', sans-serif",
-              fontSize: 'clamp(50px, 15vw, 250px)',
-              lineHeight: 1,
-              letterSpacing: '0.05em',
-              textShadow: '0 10px 20px rgba(0,0,0,0.3)'
-            }}
-          >
-            FORTRESS
-          </div>
+  // MODIFICADO: Cambiamos text-white/40 a text-white/20 y opacity-80 a opacity-40 para mayor transparencia
+  className="absolute inset-x-0 flex items-center justify-center pointer-events-none select-none z-10 text-white/20 uppercase whitespace-nowrap opacity-40"
+  style={{ 
+    top: isMobile ? '25%' : '18%', 
+    fontFamily: "'Anton', sans-serif",
+    // MODIFICADO: Reducimos el tamaño mínimo, el escalado (vw) y el tamaño máximo
+    fontSize: 'clamp(30px, 8vw, 150px)',
+    lineHeight: 1,
+    letterSpacing: '0.05em',
+    textShadow: '0 10px 20px rgba(0,0,0,0.3)'
+  }}
+>
+  FORTRESS
+</div>
 
           {/* Subtítulo Superior Izquierdo */}
           <div className="absolute top-28 md:top-28 left-6 md:left-12 z-[60] text-[10px] md:text-xs font-semibold uppercase text-white/90 tracking-[0.2em]">
