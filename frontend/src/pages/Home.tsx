@@ -172,7 +172,7 @@ export default function BazarHome() {
 
           {/* Gran Título de Fondo */}
           <div 
-            className="absolute inset-x-0 flex items-center justify-center pointer-events-none select-none z-10 text-white/40 uppercase whitespace-nowrap opacity-60"
+            className="absolute inset-x-0 flex items-center justify-center pointer-events-none select-none z-10 text-white/40 uppercase whitespace-nowrap opacity-80"
             style={{ 
               // MODIFICADO: Lo bajamos un poquito más en móvil para que no choque con el header ni el texto
               top: isMobile ? '25%' : '18%', 
