@@ -48,7 +48,7 @@ const Header: React.FC = () => {
             CATÁLOGO
           </Link>
           <a 
-            href="#contacto" 
+            href="https://fortresswebstudio.onrender.com/" 
             className="bg-white text-black px-6 py-2.5 rounded-full text-[0.85rem] font-extrabold tracking-wider hover:bg-gray-200 transition-colors ml-2"
           >
             VISÍTANOS
